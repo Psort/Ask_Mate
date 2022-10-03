@@ -22,7 +22,7 @@
 	<header>
         <div class="login_and_registration">
         {% if session == {}%}
-            <a href="{{ url_for('login') }}"><button>registration</button></a>
+            <a href="{{ url_for('Sign_up') }}"><button>Sign up</button></a>
             <a href="{{ url_for('login') }}"><button>login</button></a>
         
         {%endif%}
@@ -53,7 +53,6 @@
 	<main>
 	
 		<article>
-		
 			<section id="newest">
 				
 				<div class="entries">
@@ -66,7 +65,7 @@
                 
 
 						
-						<div class="add_question">
+						<div class="add_question">             
 							<a href="{{ url_for('add_question') }}"><button type="submit" >Add Question</button></a>
 						</div>
 						<div class="sort">
@@ -106,34 +105,30 @@
 
 					</header>	
                     {% for post in posts %}
-                    
-						<a href="{{ url_for('display_question', question_id=post['id']) }}">
-                            <div class="entry">
-                                
-                                    <h6 class="time">{{post['submission_time']}}</h6>
-                                    <div class="title"><h2>{{post['title']}}</h2>  </div>
+                    <a href="{{ url_for('display_question', question_id=post['id']) }}">
 
-                                    <div class="entrytxt">
-                                        <p>{{post['message']}} </p>
-                                    </div>
-
-                                    <div class="entryimg">
-										{% if post['image'] != None  %}
-                                            <img src="{{url_for('static',filename='photo/'+post['image'])}}" >
-                                        {%endif%}
-                                    </div>
-
-                                    <footer>
-                                        <div class="view"><i class="demo-icon icon-eye"> </i> {{post['view_number']}}</div>
-                                        <div class="vote"><i class="demo-icon icon-thumbs-up-alt"> </i>{{post['vote_number']}}</div>
-                                        <div class="add_comment">
-                                                <form action="{{ url_for('add_comment_to_question', question_id=post['id']) }}">
-                                                    <button>Add comment</button>
-                                                </form>
-                                        </div>
-                                    </footer>
+                        <div class="entry">
+                            <h6 class="time">{{post['submission_time']}}</h6>
+                            <div class="question_user">{{post['user']}}:</div>
+                            <div class="title"><h2>{{post['title']}}</h2></div>
+                            <div class="entrytxt"><p>{{post['message']}} </p></div>
+                            <div class="entryimg">
+                                {% if post['image'] != None  %}
+                                    <img src="{{url_for('static',filename='photo/'+post['image'])}}" >
+                                {%endif%}
+                            </div>
+                            <footer>
+                                <div class="view"><i class="demo-icon icon-eye"> </i> {{post['view_number']}}</div>
+                                <div class="vote"><i class="demo-icon icon-thumbs-up-alt"> </i>{{post['vote_number']}}</div>
+                                <div class="add_comment">
+                                        <form action="{{ url_for('add_comment_to_question', question_id=post['id']) }}">
+                                            <button>Add comment</button>
+                                        </form>
+                                </div>
+                            </footer>
+                        </div>
                         </a>
-                                    {% if question_id == post['id'] %}
+                        {% if question_id == post['id'] %}
                                         <div class="comment_add">
                                             <form enctype = "multipart/form-data" action="{{ url_for('add_comment_to_question', question_id=question_id) }}" method="post">
                                                 <div class="add_comment1">
@@ -149,31 +144,34 @@
                                             </form>
                                         </div>
                                     {% endif %}
-                            </div>
-                            <div class="coment_name">
-                                <h6>Comments:</h6>
-                            </div>
-                            <div class="break_comment"></div>
-                            
-                        {% for comment in comments %}
-                                <div class="comment">
+                                    <div class="coment_name"><h6>Comments:</h6></div>
+                                    <div class="break_comment"></div>
+                                    {% for comment in comments %}
                                     {% if comment.question_id == post.id %}
-                                        {{ comment.message }}
-                                        <a href="{{ url_for('edit_comment', comment_id=comment.id) }}" method="GET"><button
-                                            type="submit" value="Submit"><i class="icon-pencil"></i></button></a>
-                                        <a href="{{ url_for('del_comment', comment_id=comment.id) }}"><button
-                                            type="submit" value="Submit"><i class="icon-trash-empty"></i></button></a>
-                                            <div class="edit_count">
-                                                    <h6>Edited {{ comment.edited_count }} times</h6>
+                                        <div class="comment">
+                                            <div class="comment_heading">
+                                                <div class="comment_user">{{comment.user}}:</div>
+                                                <div class="comment_times"><h6>Edited {{ comment.edited_count }} times</h6></div>
                                             </div>
-                                        
-                                    {% endif %}
-                                </div>
-                        {% endfor %}
+                                            <div class="coment_main">
+                                                <div class="comment_text">
+                                                    {{comment.message}}
+                                                </div>
+                                                {%if session['id'] == comment.user_id%}
+                                                <div class="comment_buttons">
+                                                    <a href="{{ url_for('edit_comment', comment_id=comment.id) }}" method="GET"><button
+                                                        type="submit" value="Submit"><i class="icon-pencil"></i></button></a>
+                                                    
+                                                        <a href="{{ url_for('del_comment', comment_id=comment.id) }}"><button
+                                                        type="submit" value="Submit"><i class="icon-trash-empty"></i></button></a>
+                                                </div>
+                                                {%endif%}
+                                            </div>
+                                        </div>
+                                    {%endif%}
+                                    {%endfor%}
 
-                    {% endfor %}
-					</div>					
-				</div>
+                    {%endfor%}   					
 			</section>
 		</article>
         <div class="break">

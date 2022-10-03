@@ -56,16 +56,7 @@ CREATE TABLE question_tag (
     question_id integer NOT NULL,
     tag_id integer NOT NULL
 );
-DROP TABLE IF EXISTS public.users;
-CREATE TABLE users (
-    ID int NOT NULL PRIMARY KEY,
-    username text,
-    password text,
-    num_asked_questions integer,
-    num_answer integer,
-    num_comments integer,
-    reputation integer,
-);
+
 DROP TABLE IF EXISTS public.tag;
 CREATE TABLE tag (
     id serial NOT NULL,
@@ -75,7 +66,7 @@ CREATE TABLE tag (
 DROP TABLE IF EXISTS public.users;
 CREATE TABLE users (
     id serial NOT NULL,
-    user_name text,
+    username text,
     password text,
     registration_date timestamp without time zone,
     num_asked_question integer,

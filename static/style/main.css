@@ -122,9 +122,8 @@ h1.logo
 	width: 950px;
 	text-align: center;
 	padding-top: 10px;
-	padding-bottom: 80px;
 	margin-top: 40px;
-	min-height: 380px;
+	min-height: 320px;
 }
 
 #newest
@@ -226,8 +225,10 @@ h2
 	padding: 10px;
 	text-align: justify;
 	border-radius: 5px;
-	margin: 0;
+	margin: auto;
 	min-height: 100px;
+	width: 950px;
+	padding-bottom: 50px;
 }
 .vote button
 {
@@ -478,10 +479,20 @@ input.titletxt
 {
 	background-color: gray;
 	border-radius: 30px;
-	max-height: 50px;
+	min-height: 70px;
 	text-align: center;
-	
 	margin-bottom: 3px;
+}
+.answer_comment
+{
+	background-color: gray;
+	border-radius: 30px;
+	min-height: 70px;
+	text-align: center;
+	margin-bottom: 3px;
+	width: 950px;
+	margin-left: auto;
+	margin-right: auto;
 }
 .comment button
 {
@@ -493,6 +504,9 @@ input.titletxt
 {
 	background-color: gray;
 	border-radius: 30px;
+	width: 950px;
+	margin: auto;
+
 	
 }
 .comment_add textarea
@@ -677,4 +691,85 @@ h3
 	color: white;
 	
 }
+.comment_heading
+{
+	width: 950px;
+	height: 20px;
+}
 
+
+.comment_user
+{
+	margin-left: 30px;
+	float: left;
+	color: #9bcff5;
+}
+.comment_times
+{
+	margin-right: 30px;
+	float: right;
+	
+}
+.coment_main
+{
+	height: 30px;
+}
+.comment_text
+{
+	float: left;
+	margin-left: 40px;
+}
+.comment_buttons
+{
+	float: right;
+}
+.writing_answer
+{
+	text-align: center;
+}
+.answer_times
+{
+	float: right;
+	margin-right: 20px;
+}
+.answer_like_and_add_comment
+{
+	float: left;
+}
+.answer_delete_and_edit
+{
+	float: right;
+}
+.question_user
+{
+	color: white;
+	font-size: 150%;
+	font-family: Arial, Helvetica, sans-serif;
+}
+.tag
+{
+
+	float: right;
+	text-align: center;
+	margin-top: -3px;
+}
+.tag input
+{
+	width: 60px;
+	background-color:#1c74b2;
+	color: white;
+}
+.tag select
+{
+	background-color:#1c74b2;
+	color: white;	
+}
+.registration_button a
+{
+	color: #034778;
+}
+.error_message
+{
+	margin-top: -20px;
+	margin-bottom: -30px;
+}
