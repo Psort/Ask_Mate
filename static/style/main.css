@@ -315,8 +315,12 @@ input.titletxt
 }
 .list_all_questions
 {
-	float: right;
 	max-height: 70px;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+	width: 1000px;
+	
 }
 .list_all_questions button
 {
@@ -673,3 +677,4 @@ h3
 	color: white;
 	
 }
+
