@@ -111,28 +111,35 @@
                             {%endif%}
                             <div class="tag">
                                 {% for tag in question_tags %}
-                                    <formaction="{{ url_for('del_tag_from_question',question_id=question_id,tag_id = tag['id']) }}"method="post">
-                                        <h6 class="tags"><button type="submit">-</button> #{{tag['name']}}</h6>
-                                    </form>
+                                    <div class="tag1">
+                                        <form action="{{ url_for('del_tag_from_question',question_id=question_id,tag_id = tag['id']) }}"method="post">
+                                            <h6 class="tags"><button type="submit">-</button> #{{tag['name']}}</h6>
+                                        </form>
+                                    </div>
                                 {%endfor%}
                                 {% if all_tags == Null and session['id'] == q.user_id%}
-                                    <h6 class="tags">
-                                        <form action="{{ url_for('add_tag',question_id=question_id) }}" method="post"><button type=" submit">add tag</button></form>
-                                    </h6>
+                                    <div class="tag2">
+                                        <h6 class="tags">
+                                            <form action="{{ url_for('add_tag',question_id=question_id) }}" method="post"><button type=" submit">add tag</button></form>
+                                        </h6>
+                                    </div>
                                 {%endif%}
                                 {% if all_tags != Null%}
-                                <h6 class="tags">
-                                    <form action="{{ url_for('add_tag_to_question',question_id=question_id) }}"method="post">
-                                        <select name="" onchange="myFunction(event)">
-                                            <option></option>
-                                            {% for tag in all_tags %}
-                                                    <option value="{{tag['name']}}">{{tag['name']}}</option>
-                                            {%endfor%}
-                                        </select>
-                                        <input id="tag" name ="tag" type="text" >
-                                        <button type="submit">+</button>
-                                    </form>
-                                </h6>
+                                <div class="tag3">
+                                    <h6 class="tags">
+                                        <form action="{{ url_for('add_tag_to_question',question_id=question_id) }}"method="post">
+                                            <select name="" onchange="myFunction(event)">
+                                                <option></option>
+                                                {% for tag in all_tags %}
+                                                        <option value="{{tag['name']}}">{{tag['name']}}</option>
+                                                {%endfor%}
+                                            </select>
+                                            <input id="tag" name ="tag" type="text" >
+                                            <button type="submit">+</button>
+                                        </form>
+                                    </h6>
+                                </div>
+                               
                                 {%endif%}
                             </div>
 
