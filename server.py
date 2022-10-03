@@ -1,12 +1,260 @@
-from flask import Flask, render_template
-from bonus_questions import SAMPLE_QUESTIONS
+from operator import itemgetter
+from flask import Flask, render_template, request, redirect, url_for,session
+import data_manager
+import connection
 
 app = Flask(__name__)
+app.secret_key = 'somesecretkeythatonlyishouldknow'
+
+# @app.route('/')
+# def display_latest_questions():
+#     pass
 
 
-@app.route("/bonus-questions")
-def main():
-    return render_template('bonus_questions.html', questions=SAMPLE_QUESTIONS)
+
+
+@app.route('/')
+def route_list():
+    user_posts = data_manager.get_latest_question()
+    user_answers = data_manager.get_answer_data()
+    comments = data_manager.get_comments()
+    return render_template('list.html', headers=data_manager.SORT_QUESTION_HEADERS, posts=user_posts,
+                           answers=user_answers, list_button=1, comments=comments, session = session)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    error_message = "this acount dont exist"
+    if session != {}:
+        return redirect(url_for('profile'))
+    else:
+        if request.method == 'POST':
+            session.pop('user_id', None)
+
+            username = request.form['username']
+            password = request.form['password']
+        
+            if data_manager.check_is_username(username,password):
+
+                session['username'] = username
+                return redirect(url_for('route_list'))
+            return render_template('login.html',error_message = error_message)
+        return render_template('login.html')
+
+@app.route('/profile')
+def profile():
+  username = session['username']
+  if session == {}:
+    return redirect(url_for('login'))
+  return render_template('profile.html',username = username)
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+    
+@app.route("/list")
+def question_list():
+    order_by = request.args.get('order_by', 'submission_time')
+    order_direction = request.args.get('order_direction', 'asc')
+    questions = data_manager.get_question_data()
+    comments = data_manager.get_comments()
+    sorted_questions = sorted(questions, key=itemgetter(order_by), reverse=order_direction == 'desc')
+
+    return render_template('list.html', posts=sorted_questions, headers=data_manager.SORT_QUESTION_HEADERS, comments=comments)
+
+
+@app.route('/question/<int:question_id>')
+def display_question(question_id):
+    data_manager.add_view(question_id)
+    question = data_manager.get_question_by_id(question_id)
+    answers = data_manager.get_answers_by_question_id(question_id)
+    comments = data_manager.get_comments()
+    question_tags = data_manager.get_tags_by_question_id(question_id)
+
+    return render_template('question.html', question_id=question_id, answers=answers, question=question,question_tags = question_tags,comments=comments)
+
+@app.route('/question/<int:question_id>/add_tag', methods=['POST'])
+def add_tag(question_id):
+    data_manager.delete_view(question_id)
+    data_manager.add_view(question_id)
+    question = data_manager.get_question_by_id(question_id)
+    answers = data_manager.get_answers_by_question_id(question_id)
+    comments = data_manager.get_comment_by_question_id(question_id)
+    question_tags = data_manager.get_tags_by_question_id(question_id)
+    all_tags = data_manager.get_tags()
+    return render_template('question.html', question_id=question_id, answers=answers, question=question,question_tags=question_tags,all_tags = all_tags,comments=comments)
+
+@app.route('/question/<int:question_id>/add_tag_to_question', methods=['POST'])
+def add_tag_to_question(question_id):
+    data_manager.delete_view(question_id)
+    tag = request.form.get("tag")
+    data_manager.add_tag_to_question(question_id,tag)
+    return redirect(url_for('display_question', question_id=question_id))
+
+@app.route('/question/<int:question_id>/add_vote', methods=['POST'])
+def add_vote_question(question_id):
+    data_manager.add_like_question(question_id)
+    return redirect(url_for("display_question", question_id=question_id))
+
+
+@app.route('/answer/<int:answer_id>/add_vote', methods=['POST'])
+def add_vote_answer(answer_id):
+    question_id = data_manager.add_like_answer(answer_id)
+    data_manager.delte_vote(question_id['question_id'])
+    return redirect(url_for("display_question", question_id=question_id['question_id'], answer_id=answer_id))
+
+
+@app.route('/add-question', methods=['GET', 'POST'])
+def add_question():
+    if request.method == 'GET':
+        return render_template('add_question.html', question=None)
+    elif request.method == 'POST':
+        fileitem = request.files["filename"]
+        filename = connection.add_file(fileitem)
+        title = request.form['title']
+        message = request.form['message']
+        question_id = data_manager.add_new_question(title, message, filename)
+        return redirect(url_for('display_question', question_id=question_id['id']))
+
+
+@app.route('/question/<int:question_id>/edit', methods=['GET', 'POST'])
+def edit_question(question_id):
+    if request.method == 'GET':
+        question = data_manager.get_question_by_id(question_id)
+        return render_template('add_question.html', question=question[0], question_id=question_id)
+    elif request.method == 'POST':
+        fileitem = request.files["filename"]
+        filename = connection.add_file(fileitem)
+        title = request.form['title']
+        message = request.form['message']
+        data_manager.edit_question(question_id, title, message, filename)
+        return redirect(url_for('display_question', question_id=question_id))
+
+
+@app.route('/add_answer/<int:question_id>', methods=['GET', 'POST'])
+def add_answer(question_id):
+
+    if request.method == 'GET':
+        question = data_manager.get_question_by_id(question_id)
+        return render_template('add_answer.html', post=question[0], answer=None)
+    elif request.method == 'POST':
+        data_manager.delete_view(question_id)
+        fileitem = request.files["filename"]
+        filename = connection.add_file(fileitem)
+        message = request.form['message']
+        question_id = data_manager.add_new_answer(question_id, message, filename)
+        return redirect(url_for('display_question', question_id=question_id['question_id']))
+
+
+@app.route('/question/<int:question_id>/new-comment', methods=['GET', 'POST'])
+def add_comment_to_question(question_id):
+
+    if request.method == 'GET':
+        user_posts = data_manager.get_question_data()
+        return render_template('list.html', headers=data_manager.SORT_QUESTION_HEADERS, posts=user_posts,
+                               question_id=question_id)
+    elif request.method == 'POST':
+        message = request.form['message']
+        print(message)
+        data_manager.add_comment_to_question(question_id, message)
+        return redirect(url_for('route_list'))
+
+
+@app.route('/answer/<int:answer_id>/new-comment', methods=['GET', 'POST'])
+def add_comment_to_answer(answer_id):
+
+    if request.method == 'GET':
+        question_id = data_manager.get_question_id_by_answer_id(answer_id)
+        question = data_manager.get_question_by_id(question_id['question_id'])
+        answers = data_manager.get_answers_by_id(answer_id)
+        comments = data_manager.get_comments()
+        return render_template('question.html', answer_id=answer_id, answers=answers, question=question,
+                               comments=comments, question_id=question_id['question_id'])
+    elif request.method == 'POST':
+        message = request.form['message']
+        data_manager.add_comment_to_answer(answer_id, message)
+        question_id = data_manager.get_question_id_by_answer_id(answer_id)
+        data_manager.delete_view(question_id['question_id'])
+        return redirect(url_for('display_question', question_id=question_id['question_id']))
+
+
+@app.route('/answer/<int:answer_id>/edit', methods=['GET', 'POST'])
+def edit_answer(answer_id):
+    if request.method == 'GET':
+        question = data_manager.get_question_by_id(f'(SELECT question_id FROM answer WHERE id = {answer_id})')
+        answer = data_manager.get_answers_by_id(answer_id)
+        return render_template('add_answer.html', post=question[0], answer=answer[0])
+    elif request.method == 'POST':
+        fileitem = request.files["filename"]
+        filename = connection.add_file(fileitem)
+        message = request.form['message']
+        question_id = data_manager.edit_answer(answer_id, message, filename)
+        return redirect(url_for('display_question', question_id=question_id['question_id']))
+
+
+@app.route('/question/<int:question_id>/delete', methods=['POST'])
+def del_question(question_id):
+    data_manager.del_question(question_id)
+    return redirect(url_for('route_list'))
+
+@app.route('/question/<int:question_id>/<int:tag_id>/delete_tag', methods=['POST'])
+def del_tag_from_question(question_id,tag_id):
+    data_manager.delete_view(question_id)
+    data_manager.del_tag(question_id,tag_id)
+    return redirect(url_for('display_question', question_id=question_id))
+
+
+@app.route('/answer/<int:answer_id>/delete', methods=['POST'])
+def del_answer(answer_id):
+    question_id = data_manager.del_answer(answer_id)
+    data_manager.delete_view(question_id['question_id'])
+    return redirect(url_for('display_question', question_id=question_id['question_id']))
+
+
+@app.route('/comment/<int:comment_id>/delete')
+def del_comment(comment_id):
+    question_id = data_manager.del_comment(False, False, comment_id)
+    data_manager.delete_view(question_id['question_id'])
+    return redirect(url_for('display_question', question_id=question_id['question_id']))
+
+
+@app.route('/comment_to_answer/<int:comment_id>/delete/<int:question_id>')
+def del_comment_to_answers(comment_id, question_id):
+    data_manager.del_comment(False, False, comment_id)
+    return redirect(url_for('display_question', question_id=question_id))
+
+
+@app.route('/search' , methods=['POST'])
+def search():
+    search_item = request.form['search']
+    questions = data_manager.search_question(search_item)
+    if questions == []:
+        questions = data_manager.search_answers(search_item)
+        return render_template('list.html', headers= data_manager.SORT_QUESTION_HEADERS, posts=questions)
+    else:
+        return render_template('list.html', headers=data_manager.SORT_QUESTION_HEADERS, posts=questions)
+
+
+@app.route('/comment/<int:comment_id>/edit', methods=['GET', 'POST'])
+def edit_comment(comment_id):
+    comment = data_manager.get_comment_by_id(comment_id)
+    answer = None
+    if request.method == 'GET':
+        if comment[0]['answer_id'] != None:
+            answer = data_manager.get_answers_by_id(f'(SELECT answer_id FROM comment WHERE id = {comment_id})')[0]
+            question = data_manager.get_question_by_id(answer['question_id'])
+        else:
+            question = data_manager.get_question_by_id(f'(SELECT question_id FROM comment WHERE id = {comment_id})')
+        return render_template('add_comment.html', comment=comment[0], post=question[0], answer=answer)
+    elif request.method == 'POST':
+        message = request.form['message']
+        comment_id = data_manager.edit_comment(comment_id, message)
+        if comment[0]['answer_id'] != None:
+            answer = data_manager.get_answers_by_id(f'(SELECT answer_id FROM comment WHERE id = {comment_id["id"]})')
+            question_id = answer[0]['question_id']
+            return redirect(url_for('display_question', question_id=question_id))
+        else:
+            return redirect(url_for('route_list'))
 
 
 if __name__ == "__main__":

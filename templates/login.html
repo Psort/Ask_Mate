@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+
+    <meta charset="utf-8">
+    <title>ASk-Mate</title>
+    <meta name="description" content="Blog ">
+
+    <meta http-equiv="X-Ua-Compatible" content="IE=edge,chrome=1">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='style/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='style/css/fontello.css') }}">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&amp;subset=latin-ext" rel="stylesheet">
+
+    <!--[if lt IE 9]>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+	<![endif]-->
+
+</head>
+
+<body>
+    <main>
+
+        <header>
+
+            <h1 class="logo"><a href="{{ url_for('route_list') }}">ASK-Mate</a> </h1>
+
+            <nav id="topnav">
+                <div>
+                    <h3 class="creators">Twórcy:</h3>
+                </div>
+                <ul class="menu">
+                    <li>Piotr Skowron</li>
+                    <li>Rafał Gontarski</li>
+                    <li>Tymoteusz Sztrumpf</li>
+                    <li>Karolina Mazurczak</li>
+                    <li>Tomasz Kraczek</li>
+                    <li>Mikołaj Siedlecki</li>
+                </ul>
+
+            </nav>
+
+        </header>
+        <main>
+            <form action="" method="post">
+            <div class="container">
+                <div class="card">
+                    <h3>Login</h3>
+                    
+                        <div class="inutBox">
+                            <input name="username" type="text" required="required">
+                            <span>Username</span>
+
+                        </div>
+                        <div class="inutBox">
+                            <input name="password" type="password" required="required">
+                            <span>Password</span>
+
+                        </div>
+                        {{error_message}}
+                        <div class="button_login">
+                            <button type="submit">Login</button>
+                        </div>
+
+                   
+                </div>
+            </div>
+        </form>
+        </main>
+
+        <footer>
+
+            <div class="info">
+                Wszelkie prawa zastrzeżone &copy; 2022 Dziękuję za wizytę!
+            </div>
+
+        </footer>
+</body>
+
+</html>

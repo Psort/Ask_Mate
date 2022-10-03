@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pl">
+    {% if answer is none %}
+        {% set answer_operation = 'Add' %}
+    {% else %}
+        {% set answer_operation = 'Edit' %}
+    {% endif %}
+<head>
+
+	<meta charset="utf-8">
+	<title>ASk-Mate</title>
+	<meta name="description" content="Blog ">
+	
+	<meta http-equiv="X-Ua-Compatible" content="IE=edge,chrome=1">
+	<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='style/main.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static',filename='style/css/fontello.css') }}">
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&amp;subset=latin-ext" rel="stylesheet">
+	
+	<!--[if lt IE 9]>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+	<![endif]-->
+	
+</head>
+
+<body>
+    
+	<header>
+	
+		<h1 class="logo"><a href="{{ url_for('route_list') }}">ASK-Mate</a> </h1>
+		
+		<nav id="topnav">
+            <div>
+                <h3 class="creators">Twórcy:</h3>
+            </div>
+			<ul class="menu">
+				<li>Piotr Skowron</li>
+				<li>Rafał Gontarski</li>
+				<li>Tymoteusz Sztrumpf</li>
+				<li>Karolina Mazurczak</li>
+                <li>Tomasz Kraczek</li>
+                <li>Mikołaj Siedlecki</li>
+			</ul>
+			
+		</nav>
+	
+	</header>
+	
+	<main>
+	
+		<article>
+		
+			<section id="newest">
+				
+				<div class="entries">
+
+                            <div class="question">
+                                
+                                    <h6 class="time">{{post['submission_time']}}</h6>
+                                    <div class="title"><h2>{{post['title']}}</h2>  </div>
+
+                                    <div class="entrytxt">
+                                        <p>{{post['message']}} </p>
+                                    </div>
+
+                                    <div class="entryimg">
+										{% if post['image'] != None  %}
+                                            <img src="{{url_for('static',filename='photo/'+post['image'])}}" >
+                                        {%endif%}
+                                    </div>
+
+
+                                    <footer>
+                                        <div class="view"><i class="demo-icon icon-eye"> </i> {{ post.view_number }}</div>
+                                        <footer>
+                                            <form action="{{ url_for('add_vote_question', question_id=post.id) }}">
+                                                <div class="vote"><button><i class="demo-icon icon-thumbs-up-alt"> </i>{{ post.vote_number }}</button></div>
+                                            </form>
+                                    </footer>
+                                    
+                            </div>
+                            
+                            <div class="answer_add_div">
+                                <h6 class="time">}</h6>
+                                <form enctype = "multipart/form-data" action="{{ url_for('add_answer',question_id=post.id) if answer == None else url_for('edit_answer',answer_id=answer.id)}}" method="post">
+                                    <div class="add_answer"> 
+                                        <div class="answer_message">
+                                            <textarea id="message" name="message" cols="50" rows = "8" placeholder="Message" >{{ answer.message }}</textarea>
+                                        </div>
+                                        <div>
+                                            <p><input type = "file" name = "filename" /></p>
+                                        </div>
+                                        <div class="button_answer">
+                                            <button type="submit"><i class="icon-direction"></i> Add Answer</button>
+                                        </div>
+                                    </div>
+                                    
+                                </form>
+                            </div>
+			
+				</div>
+                
+				
+			</section>
+
+			
+		
+		</article>
+	
+	</main>
+	
+
+	<footer>
+
+		<div class="info">
+			Wszelkie prawa zastrzeżone &copy; 2022 Dziękuję za wizytę!
+		</div>
+	
+	</footer>
+
+</body>
+</html>
