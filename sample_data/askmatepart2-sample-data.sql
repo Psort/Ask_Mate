@@ -118,8 +118,8 @@ ALTER TABLE ONLY question_tag
     ADD CONSTRAINT fk_tag_id FOREIGN KEY (tag_id) REFERENCES tag(id);
 
 
-INSERT INTO users VALUES (0, 'user_1', 'user_password', '2022-04-28 16:49:00', 5, 4, 30);
-INSERT INTO users VALUES (1, 'admin', 'admin1', '2022-09-25 16:49:00', 10, 15, 50);
+INSERT INTO users VALUES (0,'user_1', 'user_password', '2022-04-28 16:49:00', 1, 1, 1,64);
+INSERT INTO users VALUES (1,'admin', 'admin1', '2022-09-25 16:49:00', 2, 1, 1,1383);
 
 
 
