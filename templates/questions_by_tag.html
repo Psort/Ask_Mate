@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+
+    <meta charset="utf-8">
+    <title>ASk-Mate</title>
+    <meta name="description" content="Blog ">
+
+    <meta http-equiv="X-Ua-Compatible" content="IE=edge,chrome=1">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='style/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='style/css/fontello.css') }}">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&amp;subset=latin-ext" rel="stylesheet">
+    <script>
+        function myFunction(tag) {
+    document.getElementById("tag").value = tag.target.value
+}
+    </script>
+
+
+    <!--[if lt IE 9]>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+	<![endif]-->
+
+</head>
+
+<body>
+
+    <header>
+
+        <h1 class="logo"><a href="{{ url_for('route_list') }}">ASK-Mate</a> </h1>
+
+        <nav id="topnav">
+            <div>
+                <h3 class="creators">Twórcy:</h3>
+            </div>
+            <ul class="menu">
+                <li>Piotr Skowron</li>
+                <li>Rafał Gontarski</li>
+                <li>Tymoteusz Sztrumpf</li>
+                <li>Karolina Mazurczak</li>
+                <li>Tomasz Kraczek</li>
+                <li>Mikołaj Siedlecki</li>
+            </ul>
+
+        </nav>
+
+    </header>
+
+    <main>
+
+        <article>
+
+            <section id="newest">
+
+                <div class="entries">
+                    {% for q in question %}
+                        <a class="question_link" href="{{ url_for('display_question', question_id=q['id']) }}">
+                    <div class="question">
+
+                            <h6 class="time">{{ q.submission_time}}</h6>
+
+
+                        <div class="title">
+                            <h2>{{ q.title }}</h2>
+                        </div>
+
+                        <div class="entrytxt">
+                            <p>{{ q.message }} </p>
+                        </div>
+
+
+                        <div class="entryimg">
+                            {% if q['image'] != None %}
+                            <img src="{{url_for('static',filename='photo/'+q['image'])}} ">
+                            {%endif%}
+                        </div>
+                    </div>
+                        </a>
+                        {% endfor %}
+
+                        <div class="break_comment"></div>
+                </div>
+            </section>
+
+
+
+        </article>
+
+    </main>
+
+
+
+
+</body>
+    <footer>
+
+        <div class="info">
+            Wszelkie prawa zastrzeżone &copy; 2022 Dziękuję za wizytę!
+        </div>
+
+    </footer>
+</html>

@@ -27,7 +27,8 @@
         
         {%endif%}
         {% if session != {}%}
-            <a href="{{ url_for('profile') }}"><button>{{session['username']}}</button></a>
+            <a href="{{ url_for('users_list') }}"><button>Users list</button></a>
+            <a href="{{ url_for('profile') }}"><button>Profile</button></a>
             <a href="{{ url_for('logout') }}"><button>Logout</button></a>
         {%endif%}
         </div>
@@ -67,8 +68,11 @@
 
 						
 						<div class="add_question">
-							<a href="{{ url_for('add_question') }}"><button type="submit" >Add Question</button></a>
+                                <a href="{{ url_for('tag_list') }}"><button>Tags</button></a>
+                                <div class="break_comment"></div>
+                                <a href="{{ url_for('add_question') }}"><button type="submit" >Add Question</button></a>
 						</div>
+                    
 						<div class="sort">
 							<div class="order_by">
 								<form action="{{ url_for('question_list') }}" method="get">
@@ -78,6 +82,7 @@
 										<option value="{{ h }}">{{ h.capitalize() }}</option>
 									{% endfor %}
 								</select>
+                                </form>
 							</div>
 							
 							<div class="order_d">
@@ -92,10 +97,11 @@
 							<div class="sort_button">
 								<button type="submit">Sort</button>
 							</div>
-								
-							</form>	
-                            
+
+							</form>
+
 						</div>
+
 
 						<div class="search_question">
                             <form action="{{ url_for('search') }}" method="post">
@@ -188,20 +194,22 @@
                                         </div>
                                     {%endif%}
                                     {%endfor%}
-
-                    {%endfor%}
-			</section>
+                                    <div class="break_comment"></div>           
+                    {%endfor%} 
+                    {% if list_button == 1 %}
+                        <div class="list_all_questions">
+                            <a href="{{ url_for('question_list') }}"><button type="submit">List all questions</button></a>
+                        </div>
+                        <div class="break_comment"></div>
+                    {% endif %}
+        </div>
+			</section> 
+      
 		</article>
-        <div class="break">
-        {% if list_button == 1 %}
-        <div class="list_all_questions">
-            <a href="{{ url_for('question_list') }}"><button type="submit">List all questions</button></a>
-        </div>
-        {% endif %}
-        </div>
+      
     
         
-        </div>
+       
 	</main>
 	
 

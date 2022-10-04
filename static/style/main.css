@@ -113,8 +113,28 @@ h1.logo
 	text-align: center;
 }
 
+#user_list {
+	text-align: center;
+	margin-right: auto;
+	margin-left: auto;
+	margin-top: 20px;
+}
 
+.user_info {
+	margin-left: 45%;
+	margin-top: 2%;
+}
+.user_info_row {
+	font-weight: bold;
+	font-size: 20px;
+}
 
+#user_questions_table, #user_answers_table, #user_comments_table {
+	text-align: center;
+	margin-right: auto;
+	margin-left: auto;
+	margin-top: 15px;
+}
 
 .entries
 {
@@ -124,12 +144,13 @@ h1.logo
 	text-align: center;
 	padding-top: 10px;
 	margin-top: 40px;
-	min-height: 320px;
+	min-height: 528px;
 }
 
 #newest
 {
 	background-color: #191d21;
+	margin-bottom: 30px;
 }
 
 .entry
@@ -281,8 +302,8 @@ h2
 }
 .titletxt textarea
 {
+	margin-top: 20px;
 	resize: none;
-	float: left;
 	max-height: 25px;
 	margin-bottom: 5px
 }
@@ -303,19 +324,20 @@ input.titletxt
 
 .add_question
 {
+	margin-top: -50px;
 	float: right;
-	max-height: 70px;
+	width: 200px;
+
 }
 .add_question button
 {
 	background-color: #1c74b2;
-	padding: 15px;
 	color: #efefef;
+	height: 56px;
 	font-size: 19px;
 	text-decoration: none;
 	border-radius: 5px;
-	min-width: 200px;
-	margin-bottom: 50px;
+	width: 200px;
 	
 }
 .list_all_questions
@@ -325,18 +347,17 @@ input.titletxt
 	margin-right: auto;
 	text-align: center;
 	width: 1000px;
-	
+
 }
 .list_all_questions button
 {
 	background-color: #1c74b2;
-	padding: 15px;
 	color: #efefef;
 	font-size: 19px;
 	text-decoration: none;
 	border-radius: 5px;
 	min-width: 200px;
-	margin-bottom: 50px;
+	height: 56px;
 }
 .add_question button:hover
 {
@@ -511,7 +532,7 @@ input.titletxt
 	width: 950px;
 	margin: auto;
 
-	
+
 }
 .comment_add textarea
 {
@@ -642,7 +663,6 @@ h3
 	color: white;
 	outline: none;
 	border: none;
-	font-size: lem;
 	background: transparent;
 	border-left: 2px solid white;
 	border-bottom: 2px solid white;
@@ -667,7 +687,6 @@ h3
 .inutBox input:focus~span
 {
 	transform: translateX(113px) translateY(-15px);
-	font-size: 0.Ben;
 	padding: 5px 10px;
 	background: #1c74b2;
 	letter-spacing: 0.2em;
@@ -776,7 +795,7 @@ h3
 .tag select
 {
 	background-color:#1c74b2;
-	color: white;	
+	color: white;
 }
 .registration_button a
 {
@@ -946,4 +965,56 @@ h3
 {
 	border-radius: 30px;
 	background-color: #919191;
+}
+
+.tag_list a
+{
+	color: white;
+}
+.tag_list a:hover
+{
+	color:	#39a5f1;
+}
+h1
+{
+	color: white;
+}
+.tabele{
+	font-family: sans-serif;
+	background: linear-gradient( black,#0d3c76,#33bae3);
+	padding:40px 20px;
+	color:#fff;
+	min-height: 567px;
+}
+
+.tabele table{
+	width: 50%;
+	border-collapse: collapse;
+	margin: 0 auto;}
+	
+
+.tabele caption{
+	font-size: 1.2em;
+	padding-bottom: 20px;
+}
+
+.tabele tr{
+	background: #000;
+	background: rgba(255,255,255,.3);
+	border-bottom:solid 1px #fff;
+	text-align: left;
+}
+
+.tabele tbody tr{
+	background: rgba(255,255,255,.1);
+}
+
+.tabele tbody tr:hover{
+	cursor: pointer;
+	background: rgba(255,0,0,.1);
+}
+
+.tabele td{
+	padding: 8px 4px;
+	text-align: left;
 }

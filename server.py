@@ -1,12 +1,13 @@
 from multiprocessing.connection import answer_challenge
 from operator import itemgetter
-from tokenize import Comment
 from flask import Flask, render_template, request, redirect, url_for, session
 import data_manager
 import connection
+import bcrypt
 
 app = Flask(__name__)
 app.secret_key = 'somesecretkeythatonlyishouldknow'
+
 
 # @app.route('/')
 # def display_latest_questions():
@@ -37,9 +38,9 @@ def login():
             password = request.form['password']
 
             if data_manager.try_login(username, password):
-                user_id = data_manager.get_user_by_username(username)
                 session['username'] = username
-                session['id'] = user_id['id']
+                session['id'] = data_manager.get_user_id_by_username(username)[
+                    'id']
                 return redirect(url_for('route_list'))
             return render_template('login.html', error_message=error_message)
         return render_template('login.html')
@@ -49,7 +50,7 @@ def login():
 def profile():
     if session == {}:
         return redirect(url_for('login'))
-    user = data_manager.get_user_by_username(session['username'])
+    user = data_manager.get_user_by_user_id(session['id'])
     questions = data_manager.get_questions_by_user_id(session['id'])
     answers = data_manager.get_answers_by_user_id(session['id'])
     comments = data_manager.get_comments_by_user_id(session['id'])
@@ -72,7 +73,7 @@ def Sign_up():
             if data_manager.check_is_username(username):
                 data_manager.create_account(username, password)
                 session['username'] = username
-                session['id'] = data_manager.get_user_by_username(username)[
+                session['id'] = data_manager.get_user_id_by_username(username)[
                     'id']
                 return redirect(url_for('profile'))
             return render_template('Sign_up.html', error_message=error_message)
@@ -96,7 +97,16 @@ def question_list():
     sorted_questions = sorted(questions, key=itemgetter(
         order_by), reverse=order_direction == 'desc')
 
-    return render_template('list.html', posts=sorted_questions, headers=data_manager.SORT_QUESTION_HEADERS, comments=comments,tags=tags,profile_tag=profile_tag)
+    return render_template('list.html', posts=sorted_questions, headers=data_manager.SORT_QUESTION_HEADERS,
+                           comments=comments)
+
+
+@app.route('/tags/<int:tag_id>')
+def questions_by_tag_name(tag_id):
+    question = data_manager.get_question_by_tag_id(tag_id)
+    tag_id = request.form.get("id")
+
+    return render_template('questions_by_tag.html', tag_id=tag_id, question=question)
 
 
 @app.route('/question/<int:question_id>')
@@ -142,6 +152,8 @@ def add_vote_question(question_id):
 
 @app.route('/question/<int:question_id>/dislike', methods=['POST'])
 def add_dislike_question(question_id):
+    if session == {}:
+        return redirect(url_for('login'))
     data_manager.dislike_question(question_id)
     return redirect(url_for("display_question", question_id=question_id))
 
@@ -157,6 +169,8 @@ def add_vote_answer(answer_id):
 
 @app.route('/answer/<int:answer_id>/add_dislike', methods=['POST'])
 def add_dislike_answer(answer_id):
+    if session == {}:
+        return redirect(url_for('login'))
     question_id = data_manager.add_like_answer(answer_id)
     data_manager.dislike_answer(question_id['question_id'])
     return redirect(url_for("display_question", question_id=question_id['question_id'], answer_id=answer_id))
@@ -173,8 +187,7 @@ def add_question():
         filename = connection.add_file(fileitem)
         title = request.form['title']
         message = request.form['message']
-        question_id = data_manager.add_new_question(
-            title, message, filename, user_id=session['id'])
+        question_id = data_manager.add_new_question(title, message, filename,session['id'])
         return redirect(url_for('display_question', question_id=question_id['id']))
 
 
@@ -206,8 +219,7 @@ def add_answer(question_id):
         fileitem = request.files["filename"]
         filename = connection.add_file(fileitem)
         message = request.form['message']
-        question_id = data_manager.add_new_answer(
-            question_id, message, filename, user_id=session['id'])
+        question_id = data_manager.add_new_answer(question_id, message, filename,session['id'])
         return redirect(url_for('display_question', question_id=question_id['question_id']))
 
 
@@ -221,9 +233,7 @@ def add_comment_to_question(question_id):
                                question_id=question_id)
     elif request.method == 'POST':
         message = request.form['message']
-        print(message)
-        data_manager.add_comment_to_question(
-            question_id, message, user_id=session['id'])
+        data_manager.add_comment_to_question(question_id, message, user_id=session['id'])
         return redirect(url_for('route_list'))
 
 
@@ -240,7 +250,7 @@ def add_comment_to_answer(answer_id):
                                comments=comments, question_id=question_id['question_id'])
     elif request.method == 'POST':
         message = request.form['message']
-        data_manager.add_comment_to_answer(answer_id, message)
+        data_manager.add_comment_to_answer(answer_id, message,session['id'])
         question_id = data_manager.get_question_id_by_answer_id(answer_id)
         data_manager.delete_view(question_id['question_id'])
         return redirect(url_for('display_question', question_id=question_id['question_id']))
@@ -293,7 +303,7 @@ def del_comment(comment_id):
         return redirect(url_for('login'))
     question_id = data_manager.del_comment(False, False, comment_id)
     data_manager.delete_view(question_id['question_id'])
-    return redirect(url_for('display_question', question_id=question_id['question_id']))
+    return redirect(url_for('route_list'))
 
 
 @app.route('/comment_to_answer/<int:comment_id>/delete/<int:question_id>')
@@ -340,6 +350,28 @@ def edit_comment(comment_id):
             return redirect(url_for('display_question', question_id=question_id))
         else:
             return redirect(url_for('route_list'))
+
+
+@app.route('/users')
+def users_list():
+    users_container = data_manager.get_users_list()
+    return render_template('user_list.html', user_list=users_container)
+
+@app.route('/users/<int:user_id>')
+def user_info(user_id):
+    user = data_manager.get_user_by_user_id(user_id)
+    questions = data_manager.get_questions_by_user_id(user_id)
+    answers = data_manager.get_answers_by_user_id(user_id)
+    comments = data_manager.get_comments_by_user_id(user_id)
+    tags = data_manager.get_tags()
+    profile_tag = data_manager.get_all_tags()
+    return render_template('profile.html', user=user,questions=questions,answers=answers,comments = comments,tags=tags,profile_tag=profile_tag)
+
+@app.route('/tags')
+def tag_list():
+    tags = data_manager.get_tags_quantity_by_question()
+
+    return render_template('tags.html', tags=tags)
 
 
 if __name__ == "__main__":
