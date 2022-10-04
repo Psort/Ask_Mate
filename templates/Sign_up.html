@@ -45,7 +45,7 @@
             <form action="" method="post">
             <div class="container">
                 <div class="card">
-                    <h3>Login</h3>
+                    <h3>Sign up</h3>
                     
                         <div class="inutBox">
                             <input name="username" type="text" required="required">
@@ -57,17 +57,13 @@
                             <span>Password</span>
 
                         </div>
-                        <div class="error_message">
-                            {{error_message}}
+                        <div>
+                          {{error_message}}  
                         </div>
                         
                         <div class="button_login">
-                            <button type="submit">Login</button>
+                            <button type="submit">Sign up</button>
                         </div>
-                        <div class="registration_button">
-                            Don’t have an account?<a href="{{ url_for('Sign_up') }}">Sign up</a> 
-                        </div>
-                        
                        
 
                    

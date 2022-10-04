@@ -34,13 +34,13 @@ def login():
             username = request.form['username']
             password = request.form['password']
         
-            if data_manager.check_is_username(username,password):
-
+            if data_manager.try_login(username,password):
+                user_id = data_manager.get_user_by_username(username)
                 session['username'] = username
+                session['id'] = user_id['id']
                 return redirect(url_for('route_list'))
             return render_template('login.html',error_message = error_message)
         return render_template('login.html')
-
 
 @app.route('/profile')
 def profile():
@@ -48,6 +48,25 @@ def profile():
   if session == {}:
     return redirect(url_for('login'))
   return render_template('profile.html',username = username)
+
+@app.route('/Sign_up', methods=['GET', 'POST'])
+def Sign_up():
+    error_message = "such an account already exists"
+    if session != {}:
+        return redirect(url_for('profile'))
+    else:
+        if request.method == 'POST':
+            session.pop('user_id', None)
+
+            username = request.form['username']
+            password = request.form['password']
+            if  data_manager.check_is_username(username):
+                data_manager.create_account(username,password)
+                session['username'] = username
+                session['id'] = data_manager.get_user_by_username(username)['id']
+                return redirect(url_for('profile'))
+            return render_template('Sign_up.html',error_message = error_message)
+        return render_template('Sign_up.html')
 
 @app.route('/logout')
 def logout():
@@ -83,6 +102,7 @@ def display_question(question_id):
 
     return render_template('question.html', question_id=question_id, answers=answers, question=question,question_tags = question_tags,comments=comments)
 
+
 @app.route('/question/<int:question_id>/add_tag', methods=['POST'])
 def add_tag(question_id):
     data_manager.delete_view(question_id)
@@ -94,6 +114,7 @@ def add_tag(question_id):
     all_tags = data_manager.get_tags()
     return render_template('question.html', question_id=question_id, answers=answers, question=question,question_tags=question_tags,all_tags = all_tags,comments=comments)
 
+
 @app.route('/question/<int:question_id>/add_tag_to_question', methods=['POST'])
 def add_tag_to_question(question_id):
     data_manager.delete_view(question_id)
@@ -104,19 +125,38 @@ def add_tag_to_question(question_id):
 
 @app.route('/question/<int:question_id>/add_vote', methods=['POST'])
 def add_vote_question(question_id):
+    if session == {}:
+        return redirect(url_for('login'))
     data_manager.add_like_question(question_id)
+    return redirect(url_for("display_question", question_id=question_id))
+
+
+@app.route('/question/<int:question_id>/dislike', methods=['POST'])
+def add_dislike_question(question_id):
+    data_manager.dislike_question(question_id)
     return redirect(url_for("display_question", question_id=question_id))
 
 
 @app.route('/answer/<int:answer_id>/add_vote', methods=['POST'])
 def add_vote_answer(answer_id):
+    if session == {}:
+        return redirect(url_for('login'))
     question_id = data_manager.add_like_answer(answer_id)
     data_manager.delte_vote(question_id['question_id'])
     return redirect(url_for("display_question", question_id=question_id['question_id'], answer_id=answer_id))
 
 
+@app.route('/answer/<int:answer_id>/add_dislike', methods=['POST'])
+def add_dislike_answer(answer_id):
+    question_id = data_manager.add_like_answer(answer_id)
+    data_manager.dislike_answer(question_id['question_id'])
+    return redirect(url_for("display_question", question_id=question_id['question_id'], answer_id=answer_id))
+
+
 @app.route('/add-question', methods=['GET', 'POST'])
 def add_question():
+    if session == {}:
+            return redirect(url_for('login'))
     if request.method == 'GET':
         return render_template('add_question.html', question=None)
     elif request.method == 'POST':
@@ -124,12 +164,14 @@ def add_question():
         filename = connection.add_file(fileitem)
         title = request.form['title']
         message = request.form['message']
-        question_id = data_manager.add_new_question(title, message, filename)
+        question_id = data_manager.add_new_question(title, message, filename,user_id = session['id'])
         return redirect(url_for('display_question', question_id=question_id['id']))
 
 
 @app.route('/question/<int:question_id>/edit', methods=['GET', 'POST'])
 def edit_question(question_id):
+    if session == {}:
+            return redirect(url_for('login'))
     if request.method == 'GET':
         question = data_manager.get_question_by_id(question_id)
         return render_template('add_question.html', question=question[0], question_id=question_id)
@@ -144,7 +186,8 @@ def edit_question(question_id):
 
 @app.route('/add_answer/<int:question_id>', methods=['GET', 'POST'])
 def add_answer(question_id):
-
+    if session == {}:
+            return redirect(url_for('login'))
     if request.method == 'GET':
         question = data_manager.get_question_by_id(question_id)
         return render_template('add_answer.html', post=question[0], answer=None)
@@ -153,13 +196,14 @@ def add_answer(question_id):
         fileitem = request.files["filename"]
         filename = connection.add_file(fileitem)
         message = request.form['message']
-        question_id = data_manager.add_new_answer(question_id, message, filename)
+        question_id = data_manager.add_new_answer(question_id, message, filename,user_id = session['id'])
         return redirect(url_for('display_question', question_id=question_id['question_id']))
 
 
 @app.route('/question/<int:question_id>/new-comment', methods=['GET', 'POST'])
 def add_comment_to_question(question_id):
-
+    if session == {}:
+            return redirect(url_for('login'))
     if request.method == 'GET':
         user_posts = data_manager.get_question_data()
         return render_template('list.html', headers=data_manager.SORT_QUESTION_HEADERS, posts=user_posts,
@@ -167,13 +211,14 @@ def add_comment_to_question(question_id):
     elif request.method == 'POST':
         message = request.form['message']
         print(message)
-        data_manager.add_comment_to_question(question_id, message)
+        data_manager.add_comment_to_question(question_id, message,user_id = session['id'])
         return redirect(url_for('route_list'))
 
 
 @app.route('/answer/<int:answer_id>/new-comment', methods=['GET', 'POST'])
 def add_comment_to_answer(answer_id):
-
+    if session == {}:
+            return redirect(url_for('login'))
     if request.method == 'GET':
         question_id = data_manager.get_question_id_by_answer_id(answer_id)
         question = data_manager.get_question_by_id(question_id['question_id'])
@@ -205,11 +250,15 @@ def edit_answer(answer_id):
 
 @app.route('/question/<int:question_id>/delete', methods=['POST'])
 def del_question(question_id):
+    if session == {}:
+            return redirect(url_for('login'))
     data_manager.del_question(question_id)
     return redirect(url_for('route_list'))
 
 @app.route('/question/<int:question_id>/<int:tag_id>/delete_tag', methods=['POST'])
 def del_tag_from_question(question_id,tag_id):
+    if session == {}:
+            return redirect(url_for('login'))
     data_manager.delete_view(question_id)
     data_manager.del_tag(question_id,tag_id)
     return redirect(url_for('display_question', question_id=question_id))
@@ -217,6 +266,8 @@ def del_tag_from_question(question_id,tag_id):
 
 @app.route('/answer/<int:answer_id>/delete', methods=['POST'])
 def del_answer(answer_id):
+    if session == {}:
+            return redirect(url_for('login'))
     question_id = data_manager.del_answer(answer_id)
     data_manager.delete_view(question_id['question_id'])
     return redirect(url_for('display_question', question_id=question_id['question_id']))
@@ -224,6 +275,8 @@ def del_answer(answer_id):
 
 @app.route('/comment/<int:comment_id>/delete')
 def del_comment(comment_id):
+    if session == {}:
+            return redirect(url_for('login'))
     question_id = data_manager.del_comment(False, False, comment_id)
     data_manager.delete_view(question_id['question_id'])
     return redirect(url_for('display_question', question_id=question_id['question_id']))
@@ -231,6 +284,8 @@ def del_comment(comment_id):
 
 @app.route('/comment_to_answer/<int:comment_id>/delete/<int:question_id>')
 def del_comment_to_answers(comment_id, question_id):
+    if session == {}:
+            return redirect(url_for('login'))
     data_manager.del_comment(False, False, comment_id)
     return redirect(url_for('display_question', question_id=question_id))
 
@@ -248,6 +303,8 @@ def search():
 
 @app.route('/comment/<int:comment_id>/edit', methods=['GET', 'POST'])
 def edit_comment(comment_id):
+    if session == {}:
+            return redirect(url_for('login'))
     comment = data_manager.get_comment_by_id(comment_id)
     answer = None
     if request.method == 'GET':

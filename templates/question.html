@@ -27,7 +27,17 @@
 <body>
 
     <header>
+        <div class="login_and_registration">
+            {% if session == {}%}
+                <a href="{{ url_for('Sign_up') }}"><button>Sign up</button></a>
+                <a href="{{ url_for('login') }}"><button>login</button></a>
 
+            {%endif%}
+            {% if session != {}%}
+                <a href="{{ url_for('profile') }}"><button>Profile</button></a>
+                <a href="{{ url_for('logout') }}"><button>Logout</button></a>
+            {%endif%}
+            </div>
         <h1 class="logo"><a href="{{ url_for('route_list') }}">ASK-Mate</a> </h1>
 
         <nav id="topnav">
@@ -57,45 +67,8 @@
 
                     <div class="question">
                         {% for q in question %}
-                        <div class="time_and_tag">
-                            {% for tag in question_tags %}
-                            <form
-                                action="{{ url_for('del_tag_from_question',question_id=question_id,tag_id = tag['id']) }}"
-                                method="post">
-                                <h6 class="tags"><button type="submit">-</button> #{{tag['name']}}</h6>
-                            </form>
-                            {%endfor%}
-
-
-                            {% if all_tags == Null%}
-                            <h6 class="tags">
-                                <form action="{{ url_for('add_tag',question_id=question_id) }}"
-                                    method="post"><button type=" submit">add tag</button></form>
-                            </h6>
-                            {%endif%}
-                            {% if all_tags != Null%}
-                            <h6 class="tags">
-                                <form action="{{ url_for('add_tag_to_question',question_id=question_id) }}"method="post">
-                                <select name="" onchange="myFunction(event)">
-                                    <option></option>
-                                    {% for tag in all_tags %}
-                                            <option value="{{tag['name']}}">{{tag['name']}}</option>
-                                    {%endfor%}
-                                </select>
-                                <input id="tag" name ="tag" type="text" >
-                                    <button type="submit">+</button>
-                                </form>
-                            </h6>
-                            </form>
-                            {%endif%}
-                            
-
-
-
-
-                            <h6 class="time">{{ q.submission_time}}</h6>
-                        </div>
-
+                        <h6 class="time">{{q['submission_time']}}</h6>
+                        <div class="question_user">{{q['user']}}:</div>
                         <div class="title">
                             <h2>{{ q.title }}</h2>
                         </div>
@@ -118,12 +91,16 @@
                                 <div class="vote"><button><i class="demo-icon icon-thumbs-up-alt"> </i></button>      {{
                                     q.vote_number}}</div>
                             </form>
+                            <form action="{{ url_for('add_dislike_question',question_id=question_id) }}" method="post">
+                                <div class="vote"><button><i class="demo-icon icon-thumbs-down-alt"> </i></button>      {{
+                                    q.dislike}}</div>
+                            </form>
                             <div class="add_answer">
                                 <form action="{{ url_for('add_answer',question_id=question_id) }}">
                                     <button>Add answer</button>
                                 </form>
                             </div>
-
+                            {%if session['id'] == q.user_id%}
                             <div class="edit_buttons">
                                 <form action="{{ url_for('del_question', question_id=question_id) }}" method="get">
                                     <button type="submit">Delete question</button>
@@ -135,95 +112,137 @@
                                     <button#} {# type="submit" value="Submit">Edit Comment to question</button>
                                 </a>#}
                             </div>
+                            {%endif%}
+                            <div class="tag">
+                                {% for tag in question_tags %}
+                                    <div class="tag1">
+                                        <form action="{{ url_for('del_tag_from_question',question_id=question_id,tag_id = tag['id']) }}"method="post">
+                                            <h6 class="tags"><button type="submit">-</button> #{{tag['name']}}</h6>
+                                        </form>
+                                    </div>
+                                {%endfor%}
+                                {% if all_tags == Null and session['id'] == q.user_id%}
+                                    <div class="tag2">
+                                        <h6 class="tags">
+                                            <form action="{{ url_for('add_tag',question_id=question_id) }}" method="post"><button type=" submit">add tag</button></form>
+                                        </h6>
+                                    </div>
+                                {%endif%}
+                                {% if all_tags != Null%}
+                                <div class="tag3">
+                                    <h6 class="tags">
+                                        <form action="{{ url_for('add_tag_to_question',question_id=question_id) }}"method="post">
+                                            <select name="" onchange="myFunction(event)">
+                                                <option></option>
+                                                {% for tag in all_tags %}
+                                                        <option value="{{tag['name']}}">{{tag['name']}}</option>
+                                                {%endfor%}
+                                            </select>
+                                            <input id="tag" name ="tag" type="text" >
+                                            <button type="submit">+</button>
+                                        </form>
+                                    </h6>
+                                </div>
+
+                                {%endif%}
+                            </div>
 
                         </footer>
                         {% endfor %}
                     </div>
-                    {% for answer in answers %}
-                    {% if answer.question_id == question_id %}
-                    <div class="answer">
-                        <h6 class="time">{{ answer.submission_time }}</h6>
-
-                        <div class="entrytxt">
-                            <p>{{ answer.message }} </p>
+                </div>
+                <div class="writing_answer">
+                    <h2>Answers:</h2>
+                </div>
+                {% for answer in answers %}
+                <div class="answer">
+                    <div class="comment_heading">
+                        <div class="comment_user">{{answer.user}}:</div>
+                        <div class="answer_times"><h6>Edited {{ answer.submission_time }} times</h6></div>
+                    </div>
+                    <div class="coment_main">
+                        <div class="comment_text">
+                            <div class="entrytxt">
+                               {{answer.message}}
+                            </div>
                         </div>
-                        <div class="entryimg">
-
-                            {% if answer['image'] != None %}
-                            <img src="{{url_for('static',filename='photo/'+answer['image'])}} ">
-                            {%endif%}
-                           
-                        </div>
-                        <div class="vote_and_add">
+                    </div>
+                    <div class="entryimg">
+                        {% if answer['image'] != None %}
+                    <img src="{{url_for('static',filename='photo/'+answer['image'])}} ">
+                    {%endif%}
+                    </div>
+                    <div class="answer_buttons">
+                        <div class="answer_like_and_add_comment">
                             <form action="{{ url_for('add_vote_answer', answer_id=answer.id) }}" method="post">
                             <button><i class="demo-icon icon-thumbs-up-alt"> </i></button>     {{answer.vote_number }}
+                        </form>
+                        <form action="{{ url_for('add_dislike_answer', answer_id=answer.id) }}" method="post">
+                            <button><i class="demo-icon icon-thumbs-down-alt"> </i></button>     {{answer.dislike }}
                         </form>
                             {% if answer_id != None %}
                             <form action="{{ url_for('add_comment_to_answer', answer_id=answer.id) }}">
                             <button>Add comment</button>
                             </form>
-                            {% endif %}
                         </div>
-                        <div class="option_button">
+                        {%if session['id'] == answer.user_id %}
+                        <div class="answer_delete_and_edit">
                             <form action="{{ url_for('del_answer', answer_id=answer.id) }}" method="POST">
                                 <button type="submit">Delete Answers</button>
                             </form>
-                            <a href="{{ url_for('edit_answer', answer_id=answer.id) }}" method="GET"><button
-                                    type="submit" value="Submit">Edit Answer</button></a>
-                        </div>
-
-                        
-                        </div>
-                        {% if answer_id == answer.id %}
-                        <div class="comment">
-                            <h6 class="time">}</h6>
-                            <form enctype="multipart/form-data"
-                                action="{{ url_for('add_comment_to_answer', answer_id=answer.id) }}" method="post">
-                                <div class="add_comment1">
-                                    <div class="answer_message">
-                                        <textarea id="message" name="message" cols="40" rows="8"
-                                            placeholder="Message"></textarea>
-                                    </div>
-
-                                    <div class="button_answer">
-                                        <button type="submit"><i class="icon-direction"></i></button>
-                                    </div>
-                                </div>
-
+                            <form action="{{ url_for('edit_answer', answer_id=answer.id) }}" method="GET">
+                                <button type="submit" value="Submit">Edit Answer</button>
                             </form>
+
                         </div>
-                        {% endif %}
+                        {%endif%}
 
-                    <div class="break_comment"></div>
-
-                    {% endif %}
-                    <div class="coment_name">
-                        <h6>Comments:</h6>
                     </div>
-                    {% for comment in comments %}
-                    <div class="comment">
-                        {% if comment.answer_id == answer.id %}
-                        {{ comment.message }}
-                        <a href="{{ url_for('edit_comment', comment_id=comment.id) }}" method="GET"><button
-                                type="submit" value="Submit"><i class="icon-pencil"></i></button></a>
-                        <a
-                            href="{{ url_for('del_comment_to_answers', comment_id=comment.id, question_id=question_id) }}"><button
-                                type="submit" value="Submit"><i class="icon-trash-empty"></i></button></a>
-                        <div class="edit_count">
-                            <h6>Edited {{ comment.edited_count }} times</h6>
-                        </div>
-
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-                    <div class="break_comment"></div>
-                    {% endfor %}
-                    
-
-
 
                 </div>
+                {% if answer_id == answer['id'] %}
+                                        <div class="comment_add">
+                                            <form enctype = "multipart/form-data" action="{{ url_for('add_comment_to_question', question_id=question_id) }}" method="post">
+                                                <div class="add_comment1">
+                                                    <div class="answer_message">
+                                                        <textarea id="message" name="message" cols="40" rows = "20" placeholder="Message" ></textarea>
+                                                    </div>
 
+                                                    <div class="button_comment">
+                                                        <button type="submit"><i class="icon-direction"></i></button>
+                                                    </div>
+                                                </div>
+
+                                            </form>
+                                        </div>
+                                    {% endif %}
+                                    <div class="coment_name"><h6>Comments:</h6></div>
+                                    <div class="break_comment"></div>
+                                    {% for comment in comments %}
+                                    {% if comment.answer_id == answer.id %}
+                                        <div class="answer_comment">
+                                            <div class="comment_heading">
+                                                <div class="comment_user">{{comment.user}}:</div>
+                                                <div class="comment_times"><h6>Edited {{ comment.edited_count }} times</h6></div>
+                                            </div>
+                                            <div class="coment_main">
+                                                <div class="comment_text">
+                                                    {{comment.message}}
+                                                </div>
+                                                {%if session['id'] == comment.user_id %}
+                                                <div class="comment_buttons">
+                                                    <a href="{{ url_for('edit_comment', comment_id=comment.id) }}" method="GET"><button
+                                                        type="submit" value="Submit"><i class="icon-pencil"></i></button></a>
+
+                                                        <a href="{{ url_for('del_comment', comment_id=comment.id) }}"><button
+                                                        type="submit" value="Submit"><i class="icon-trash-empty"></i></button></a>
+                                                </div>
+                                                {%endif%}
+                                            </div>
+                                        </div>
+                                    {%endif%}
+                                    {%endfor%}
+            {%endfor%}
             </section>
 
 
