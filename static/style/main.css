@@ -81,6 +81,7 @@ h1.logo
 {
 	background-color: #1c74b2;
 	text-align: center;
+	height: 100px;
 }
 
 .menu
@@ -153,6 +154,7 @@ h1.logo
 	border-radius: 5px;
 	min-height: 170px;
 }
+
 div.entry > *
 {
 	color: white;
@@ -181,6 +183,7 @@ div.entry > *
 {
 	width: 750px;
 	font-size: 15px;
+	color: white;
 }
 
 h2
@@ -192,10 +195,10 @@ h2
 
 .info 
 {
-	margin-bottom: 10px;
+	background-color: #191d21;
 	text-align: center;
 	padding: 20px;
-	max-height: 50px;
+	height: 50px;
 }
 
 .time
@@ -237,6 +240,7 @@ h2
 }
 .vote
 {
+	color: white;
 	width: 100px;
 }
 .option_button
@@ -596,6 +600,11 @@ h3
 	min-height: 100vh;
 
 }
+.view
+{
+	text-decoration: none;
+	color:  white;
+}
 
 .card
 {
@@ -708,6 +717,8 @@ h3
 {
 	margin-right: 30px;
 	float: right;
+	color: white;
+	opacity: 0.4;
 	
 }
 .coment_main
@@ -716,6 +727,7 @@ h3
 }
 .comment_text
 {
+	color: white;
 	float: left;
 	margin-left: 40px;
 }
@@ -729,6 +741,8 @@ h3
 }
 .answer_times
 {
+	color: white;
+	opacity: 0.4;
 	float: right;
 	margin-right: 20px;
 }
@@ -784,4 +798,152 @@ h3
 .tag3
 {
 	float: left;
+}
+.break_nav
+{
+	height: 20px;
+}
+.Profile
+{
+	width: 650px;
+	background-color: #39a5f1;
+	height: 300px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 50px;
+	border-radius: 30px;
+	margin-bottom: 50px;
+	box-shadow: 16px 16px 32px #0b63a1,-16px -16px 32px #0b63a1;
+}
+.name
+{
+	padding-top: 5px;
+	color: white;
+	font-size: 300%;
+	text-align: center;
+	padding-bottom: 20px;
+}
+.noaq
+{
+	padding-bottom: 20px;
+}
+.noa
+{
+	padding-bottom: 20px;
+}
+.noc
+{
+	padding-bottom: 20px;
+}
+.reputation
+{
+	padding-bottom: 50px;
+}
+.id_and_time
+{
+	color: black;
+	opacity: 0.3;
+}
+.id
+{
+	float: left;
+	margin-left: 50px;
+}
+.join_time
+{
+	float: right;
+	margin-right: 50px;
+}
+.user_post
+{
+	text-align: center;
+	max-width: 850px;
+	margin-left: auto;
+	margin-right: auto;
+}
+.comments
+{
+	width: 850px;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
+.profile_comment
+{	
+	margin-left: auto;
+	margin-right: auto;
+	background-color: gray;
+	width: 650px;
+	border-radius: 30px;
+	
+}
+.heading
+{
+	margin-right: 10px;
+	float: right;
+	opacity: 0.4;
+	color: black;
+}
+.profile_answer
+{
+	background-color: #444941;
+	padding: 10px;
+	text-align: justify;
+	border-radius: 30px;
+	margin: auto;
+	width: 650px;
+	padding-bottom: 50px;
+	color: white;
+}
+.profile_answer_buttons
+{
+	margin-left: 40px;
+}
+.profile_comment_heading
+{
+	color: white;
+	opacity: 0.4;
+}
+.profile_question
+{
+	background-color: #222930;
+	padding: 10px;
+	text-align: justify;
+	border-radius: 30px;
+	margin: auto;
+	width: 650px;
+	padding-bottom: 50px;
+}
+.profile_time
+{
+	opacity: 0.8;
+	float: right;
+	color: grey;
+	margin-bottom: 3px;
+}
+.profile_title
+{
+	padding: 10px;
+}
+.profile_entrytxt
+{
+	margin-left: 20px;
+	color: white;
+}
+.profile_tag
+{
+	float: right;
+}
+.question_link :hover
+{
+	background-color: #223940;
+}
+.answer_link :hover
+{
+	background-color: #555a52;
+}
+.comment_link :hover
+{
+	border-radius: 30px;
+	background-color: #919191;
 }

@@ -24,6 +24,35 @@ def get_question_data(cursor):
     cursor.execute(query)
     return cursor.fetchall()
 
+@database_common.connection_handler
+def get_questions_by_user_id(cursor,user_id):
+    query = f"""
+                SELECT *
+                FROM question
+                WHERE user_id = {user_id}
+            """
+    cursor.execute(query)
+    return cursor.fetchall()
+
+@database_common.connection_handler
+def get_answers_by_user_id(cursor,user_id):
+    query = f"""
+                SELECT *
+                FROM answer
+                WHERE user_id = {user_id}
+            """
+    cursor.execute(query)
+    return cursor.fetchall()
+
+@database_common.connection_handler
+def get_comments_by_user_id(cursor,user_id):
+    query = f"""
+                SELECT *
+                FROM comment
+                WHERE user_id = {user_id}
+            """
+    cursor.execute(query)
+    return cursor.fetchall()
 
 @database_common.connection_handler
 def  get_comments(cursor):
@@ -40,7 +69,7 @@ def  get_comments(cursor):
 @database_common.connection_handler
 def get_latest_question(cursor):
     query = """
-            SELECT *,users.username as user
+            SELECT question.*,users.username as user
             FROM question
             INNER JOIN users on users.id = question.user_id
             ORDER BY submission_time DESC 
@@ -53,7 +82,7 @@ def get_latest_question(cursor):
 @database_common.connection_handler
 def get_answer_data(cursor):
     query = """
-                SELECT *,users.username as user
+                SELECT answer.*,users.username as user
                 FROM answer
                 INNER JOIN users on users.id = answer.user_id
             """
@@ -64,7 +93,7 @@ def get_answer_data(cursor):
 @database_common.connection_handler
 def get_comment_by_question_id(cursor, question_id):
     query = f"""
-                SELECT *,users.username as user
+                SELECT comment.*,users.username as user
                 FROM comment
                 INNER JOIN users on users.id = comment.user_id
                 WHERE comment.question_id = {question_id}
@@ -77,7 +106,7 @@ def get_comment_by_question_id(cursor, question_id):
 @database_common.connection_handler
 def get_question_by_id(cursor, question_id):
     query = f"""
-                SELECT *,users.username as user
+                SELECT question.*,users.username as user
                 FROM question
                 INNER JOIN users on users.id = question.user_id
                 WHERE question.id = {question_id}
@@ -90,7 +119,7 @@ def get_question_by_id(cursor, question_id):
 @database_common.connection_handler
 def get_answers_by_id(cursor, answer_id):
     query = f"""
-                SELECT *,users.username as user
+                SELECT answer.*,users.username as user
                 FROM answer
                 INNER JOIN users on users.id = answer.user_id
                 WHERE answer.id= {answer_id}
@@ -113,7 +142,7 @@ def add_view(cursor, question_id):
 @database_common.connection_handler
 def get_answers_by_question_id(cursor, question_id):
     query = f"""
-                SELECT *,users.username as user
+                SELECT answer.*,users.username as user
                 FROM answer
                 INNER JOIN users on users.id = answer.user_id
                 WHERE question_id = {question_id}
@@ -132,7 +161,14 @@ def get_tags(cursor):
     cursor.execute(query)
     return cursor.fetchall()
 
-
+@database_common.connection_handler
+def get_all_tags(cursor):
+    query = f"""
+                SELECT *
+                FROM question_tag
+            """
+    cursor.execute(query)
+    return cursor.fetchall()
 @database_common.connection_handler
 def get_tags_by_question_id(cursor, question_id):
     query = f"""
@@ -331,7 +367,16 @@ def del_comment(cursor, question_id=False, answer_id=False, comment_id=False):
 
 
 @database_common.connection_handler
-def del_tag(cursor, question_id, tag_id):
+def del_tag(cursor, question_id):
+
+    query = f"""
+                DELETE FROM question_tag
+                WHERE question_id = {question_id}
+            """
+    cursor.execute(query)
+
+@database_common.connection_handler
+def del_tag_from_question(cursor, question_id, tag_id):
 
     query = f"""
                 DELETE FROM question_tag
@@ -354,8 +399,9 @@ def del_comment_by_question_id(cursor, question_id):
 def search_question(cursor, search_item):
 
     query = f"""
-                SELECT *
-                FROM question 
+                SELECT *,users.username as user
+                FROM question
+                INNER JOIN users on users.id = question.user_id 
                 WHERE title LIKE '%{search_item}%'
                 OR message LIKE '%{search_item}%'
 
@@ -367,8 +413,9 @@ def search_question(cursor, search_item):
 @database_common.connection_handler
 def search_answers(cursor, search_item):
     query = f"""
-            SELECT question.id, question.submission_time, question.view_number, question.vote_number, question.title, question.message, question.image 
+            SELECT question.id, question.submission_time, question.view_number, question.vote_number, question.title, question.message, question.image,users.username as user
             FROM question
+            INNER JOIN users on users.id = question.user_id 
             JOIN answer ON question.id = answer.question_id
             WHERE answer.message LIKE '%{search_item}%'
     """
@@ -453,6 +500,8 @@ def create_account(cursor,username,password):
             VALUES ('{username}', '{password}', '{registration_date}',0, 0, 0, 0);
         """
     cursor.execute(query)
+
+
 
 def is_tag_in_tags(tag):
     tags = get_tags()

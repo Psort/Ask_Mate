@@ -59,6 +59,12 @@
       "css": "direction",
       "code": 61732,
       "src": "fontawesome"
+    },
+    {
+      "uid": "ddcd918b502642705838815d40aea9e3",
+      "css": "thumbs-down-alt",
+      "code": 61797,
+      "src": "fontawesome"
     }
   ]
 }
