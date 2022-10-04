@@ -73,6 +73,7 @@ def display_question(question_id):
 
     return render_template('question.html', question_id=question_id, answers=answers, question=question,question_tags = question_tags,comments=comments)
 
+
 @app.route('/question/<int:question_id>/add_tag', methods=['POST'])
 def add_tag(question_id):
     data_manager.delete_view(question_id)
@@ -84,6 +85,7 @@ def add_tag(question_id):
     all_tags = data_manager.get_tags()
     return render_template('question.html', question_id=question_id, answers=answers, question=question,question_tags=question_tags,all_tags = all_tags,comments=comments)
 
+
 @app.route('/question/<int:question_id>/add_tag_to_question', methods=['POST'])
 def add_tag_to_question(question_id):
     data_manager.delete_view(question_id)
@@ -91,9 +93,16 @@ def add_tag_to_question(question_id):
     data_manager.add_tag_to_question(question_id,tag)
     return redirect(url_for('display_question', question_id=question_id))
 
+
 @app.route('/question/<int:question_id>/add_vote', methods=['POST'])
 def add_vote_question(question_id):
     data_manager.add_like_question(question_id)
+    return redirect(url_for("display_question", question_id=question_id))
+
+
+@app.route('/question/<int:question_id>/dislike', methods=['POST'])
+def add_dislike_question(question_id):
+    data_manager.dislike_question(question_id)
     return redirect(url_for("display_question", question_id=question_id))
 
 
@@ -101,6 +110,13 @@ def add_vote_question(question_id):
 def add_vote_answer(answer_id):
     question_id = data_manager.add_like_answer(answer_id)
     data_manager.delte_vote(question_id['question_id'])
+    return redirect(url_for("display_question", question_id=question_id['question_id'], answer_id=answer_id))
+
+
+@app.route('/answer/<int:answer_id>/add_dislike', methods=['POST'])
+def add_dislike_answer(answer_id):
+    question_id = data_manager.add_like_answer(answer_id)
+    data_manager.dislike_answer(question_id['question_id'])
     return redirect(url_for("display_question", question_id=question_id['question_id'], answer_id=answer_id))
 
 

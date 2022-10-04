@@ -125,6 +125,7 @@
                                     <footer>
                                         <div class="view"><i class="demo-icon icon-eye"> </i> {{post['view_number']}}</div>
                                         <div class="vote"><i class="demo-icon icon-thumbs-up-alt"> </i>{{post['vote_number']}}</div>
+                                        <div class="vote"><i class="demo-icon icon-thumbs-down-alt"> </i>{{post['dislike']}}</div>
                                         <div class="add_comment">
                                                 <form action="{{ url_for('add_comment_to_question', question_id=post['id']) }}">
                                                     <button>Add comment</button>

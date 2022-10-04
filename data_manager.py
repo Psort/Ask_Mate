@@ -159,11 +159,32 @@ def add_like_question(cursor, question_id):
 
 
 @database_common.connection_handler
+def dislike_question(cursor, question_id):
+    query = f"""
+                UPDATE question
+                SET dislike = dislike + 1 ,view_number = view_number - 1
+                WHERE id = {question_id}
+    """
+    cursor.execute(query)
+
+
+@database_common.connection_handler
 def add_like_answer(cursor, id):
     query = f"""
             UPDATE answer
             SET vote_number = vote_number + 1
-            WHERE id = {id}"""
+            WHERE id = {id}
+            """
+    cursor.execute(query)
+
+
+@database_common.connection_handler
+def dislike_answer(cursor, answer_id):
+    query = f"""
+            UPDATE answer
+            SET dislike = dislike + 1 ,view_number = view_number - 1
+            WHERE id = {answer_id}
+            """
     cursor.execute(query)
 
 
@@ -195,8 +216,8 @@ def add_new_question(cursor, title, message, image):
     if image != 'NULL':
         image = f"'{image}'"
     query = f"""
-                INSERT INTO question (submission_time, view_number, vote_number, title, message, image)
-                VALUES ('{submission_time}', -1, 0, '{title}', '{message}', {image}) 
+                INSERT INTO question (submission_time, view_number, vote_number, title, message, image, dislike)
+                VALUES ('{submission_time}', -1, 0, '{title}', '{message}', {image}, 0) 
                 RETURNING id
     """
     cursor.execute(query)
@@ -209,8 +230,8 @@ def add_new_answer(cursor, question_id, message, image):
     if image != 'NULL':
         image = f"'{image}'"
     query = f"""
-                INSERT INTO answer (submission_time, vote_number, question_id, message, image)
-                VALUES ('{submission_time}', 0, {question_id}, '{message}', {image}) 
+                INSERT INTO answer (submission_time, vote_number, question_id, message, image, dislike)
+                VALUES ('{submission_time}', 0, {question_id}, '{message}', {image}, 0) 
                 RETURNING question_id
         """
     cursor.execute(query)
