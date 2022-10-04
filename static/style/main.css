@@ -112,8 +112,28 @@ h1.logo
 	text-align: center;
 }
 
+#user_list {
+	text-align: center;
+	margin-right: auto;
+	margin-left: auto;
+	margin-top: 20px;
+}
 
+.user_info {
+	margin-left: 45%;
+	margin-top: 2%;
+}
+.user_info_row {
+	font-weight: bold;
+	font-size: 20px;
+}
 
+#user_questions_table, #user_answers_table, #user_comments_table {
+	text-align: center;
+	margin-right: auto;
+	margin-left: auto;
+	margin-top: 15px;
+}
 
 .entries
 {
@@ -634,7 +654,6 @@ h3
 	color: white;
 	outline: none;
 	border: none;
-	font-size: lem;
 	background: transparent;
 	border-left: 2px solid white;
 	border-bottom: 2px solid white;
@@ -659,7 +678,6 @@ h3
 .inutBox input:focus~span
 {
 	transform: translateX(113px) translateY(-15px);
-	font-size: 0.Ben;
 	padding: 5px 10px;
 	background: #1c74b2;
 	letter-spacing: 0.2em;
