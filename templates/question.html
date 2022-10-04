@@ -223,7 +223,7 @@
                                         </div>
                                     {% endif %}
                                     <div class="coment_name"><h6>Comments:</h6></div>
-                                    <div class="break_comment"></div>
+            
                                     {% for comment in comments %}
                                     {% if comment.answer_id == answer.id %}
                                         <div class="answer_comment">
@@ -247,6 +247,7 @@
                                             </div>
                                         </div>
                                     {%endif%}
+                                    <div class="break_comment"></div>
                                     {%endfor%}
             {%endfor%}
             </section>
