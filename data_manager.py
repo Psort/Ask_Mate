@@ -593,6 +593,19 @@ def get_tags_quantity_by_question(cursor):
     cursor.execute(query)
     return cursor.fetchall()
 
+
+@database_common.connection_handler
+def get_tags_quantity_by_question(cursor):
+    query = '''
+            SELECT tag.id, tag.name , count (question_tag.question_id)
+            FROM tag
+            INNER JOIN question_tag
+            ON tag.id = question_tag.tag_id
+            GROUP BY tag.id
+    '''
+    cursor.execute(query)
+    return cursor.fetchall()
+
 def check_is_username(username):
     users = get_users()
     for user in users:
