@@ -31,7 +31,7 @@
             {% if session == {}%}
                 <a href="{{ url_for('Sign_up') }}"><button>Sign up</button></a>
                 <a href="{{ url_for('login') }}"><button>login</button></a>
-            
+
             {%endif%}
             {% if session != {}%}
                 <a href="{{ url_for('profile') }}"><button>{{session['username']}}</button></a>
@@ -92,6 +92,10 @@
                                 <div class="vote"><button><i class="demo-icon icon-thumbs-up-alt"> </i></button>      {{
                                     q.vote_number}}</div>
                             </form>
+                            <form action="{{ url_for('add_dislike_question',question_id=question_id) }}" method="post">
+                                <div class="vote"><button><i class="demo-icon icon-thumbs-down-alt"> </i></button>      {{
+                                    q.dislike}}</div>
+                            </form>
                             <div class="add_answer">
                                 <form action="{{ url_for('add_answer',question_id=question_id) }}">
                                     <button>Add answer</button>
@@ -144,7 +148,7 @@
                                         </form>
                                     </h6>
                                 </div>
-                               
+
                                 {%endif%}
                             </div>
 
@@ -164,7 +168,7 @@
                     <div class="coment_main">
                         <div class="comment_text">
                             <div class="entrytxt">
-                               {{answer.message}} 
+                               {{answer.message}}
                             </div>
                         </div>
                     </div>
@@ -176,8 +180,12 @@
                     <div class="answer_buttons">
                         <div class="answer_like_and_add_comment">
                             <form action="{{ url_for('add_vote_answer', answer_id=answer.id) }}" method="post">
-                                <button><i class="demo-icon icon-thumbs-up-alt"> </i></button>     {{answer.vote_number }}
-                            </form>
+                            <button><i class="demo-icon icon-thumbs-up-alt"> </i></button>     {{answer.vote_number }}
+                        </form>
+                        <form action="{{ url_for('add_dislike_answer', answer_id=answer.id) }}" method="post">
+                            <button><i class="demo-icon icon-thumbs-down-alt"> </i></button>     {{answer.dislike }}
+                        </form>
+                            {% if answer_id != None %}
                             <form action="{{ url_for('add_comment_to_answer', answer_id=answer.id) }}">
                             <button>Add comment</button>
                             </form>
@@ -230,7 +238,7 @@
                                                 <div class="comment_buttons">
                                                     <a href="{{ url_for('edit_comment', comment_id=comment.id) }}" method="GET"><button
                                                         type="submit" value="Submit"><i class="icon-pencil"></i></button></a>
-                                                    
+
                                                         <a href="{{ url_for('del_comment', comment_id=comment.id) }}"><button
                                                         type="submit" value="Submit"><i class="icon-trash-empty"></i></button></a>
                                                 </div>

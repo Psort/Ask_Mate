@@ -66,7 +66,7 @@
                 
 
 						
-						<div class="add_question">             
+						<div class="add_question">
 							<a href="{{ url_for('add_question') }}"><button type="submit" >Add Question</button></a>
 						</div>
 						<div class="sort">
@@ -177,7 +177,7 @@
                                                 <div class="comment_buttons">
                                                     <a href="{{ url_for('edit_comment', comment_id=comment.id) }}" method="GET"><button
                                                         type="submit" value="Submit"><i class="icon-pencil"></i></button></a>
-                                                    
+
                                                         <a href="{{ url_for('del_comment', comment_id=comment.id) }}"><button
                                                         type="submit" value="Submit"><i class="icon-trash-empty"></i></button></a>
                                                 </div>
@@ -187,7 +187,7 @@
                                     {%endif%}
                                     {%endfor%}
 
-                    {%endfor%}   					
+                    {%endfor%}
 			</section>
 		</article>
         <div class="break">
