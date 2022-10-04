@@ -454,6 +454,63 @@ def create_account(cursor,username,password):
         """
     cursor.execute(query)
 
+@database_common.connection_handler
+def get_users_list(cursor):
+    query = f"""
+        SELECT id, username, registration_date, num_asked_question, num_answer, num_comment, reputation
+        FROM users
+        ORDER BY id asc;
+    """
+    cursor.execute(query)
+    return cursor.fetchall()
+
+@database_common.connection_handler
+def get_single_user_info(cursor, id):
+    query = f"""
+        SELECT id, username, registration_date, num_asked_question, num_answer, num_comment, reputation
+        FROM users
+        WHERE users.id = {id}
+    """
+    cursor.execute(query)
+    return cursor.fetchall()
+
+@database_common.connection_handler
+def get_user_questions(cursor, id):
+    query = f"""
+        SELECT q.title, q.message, q.view_number, q.vote_number, q.id
+        FROM question as q
+        INNER JOIN users as us ON q.user_id = us.id
+        WHERE us.id = {id}
+    """
+    cursor.execute(query)
+    return cursor.fetchall()
+
+@database_common.connection_handler
+def get_user_answers(cursor, id):
+    query = f"""
+        SELECT ans.message, ans.vote_number, ques.id
+        FROM answer as ans
+        INNER JOIN users as use ON ans.user_id = use.id
+        INNER JOIN question as ques ON ans.question_id = ques.id
+        WHERE use.id = {id}
+    """
+    cursor.execute(query)
+    return cursor.fetchall()
+
+@database_common.connection_handler
+def get_user_comments(cursor, id):
+    query = f"""
+            SELECT com.message, ques.id
+            FROM comment as com
+            INNER JOIN users as use ON com.user_id = use.id
+            INNER JOIN question as ques ON com.question_id = ques.id
+            WHERE use.id = {id}
+        """
+    cursor.execute(query)
+    return cursor.fetchall()
+
+
+
 def is_tag_in_tags(tag):
     tags = get_tags()
     for element in tags:

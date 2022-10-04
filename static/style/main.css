@@ -112,8 +112,28 @@ h1.logo
 	text-align: center;
 }
 
+#user_list {
+	text-align: center;
+	margin-right: auto;
+	margin-left: auto;
+	margin-top: 20px;
+}
 
+.user_info {
+	margin-left: 45%;
+	margin-top: 2%;
+}
+.user_info_row {
+	font-weight: bold;
+	font-size: 20px;
+}
 
+#user_questions_table, #user_answers_table, #user_comments_table {
+	text-align: center;
+	margin-right: auto;
+	margin-left: auto;
+	margin-top: 15px;
+}
 
 .entries
 {
