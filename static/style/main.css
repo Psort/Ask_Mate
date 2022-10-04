@@ -229,8 +229,8 @@ h2
 	text-align: justify;
 	border-radius: 5px;
 	margin: auto;
-	min-height: 100px;
 	width: 950px;
+	min-height: 150px;
 	padding-bottom: 50px;
 }
 .vote button
