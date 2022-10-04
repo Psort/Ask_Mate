@@ -66,7 +66,7 @@ CREATE TABLE tag (
 DROP TABLE IF EXISTS public.users;
 CREATE TABLE users (
     id serial NOT NULL,
-    user_name text,
+    username text,
     password text,
     registration_date timestamp without time zone,
     num_asked_question integer,
@@ -125,12 +125,8 @@ INSERT INTO users VALUES (1, 'admin', 'admin1', '2022-09-25 16:49:00', 10, 15, 5
 
 INSERT INTO question VALUES (0, 0, '2017-04-28 08:29:00', 29, 7, 'How to make lists in Python?', 'I am totally new to this, any hints?', NULL);
 INSERT INTO question VALUES (1, 1, '2017-04-29 09:19:00', 15, 9, 'Wordpress loading multiple jQuery Versions', 'I developed a plugin that uses the jquery booklet plugin (http://builtbywill.com/booklet/#/) this plugin binds a function to $ so I cann call $(".myBook").booklet());
-
-
 I could easy managing the loading order with wp_enqueue_script so first I load jquery then I load booklet so everything is fine.
-
 BUT in my theme i also using jquery via webpack so the loading order is now following:
-
 jquery
 booklet
 app.js (bundled file with webpack, including jquery)', 'images/image1.png');

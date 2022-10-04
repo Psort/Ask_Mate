@@ -21,6 +21,7 @@ def route_list():
     return render_template('list.html', headers=data_manager.SORT_QUESTION_HEADERS, posts=user_posts,
                            answers=user_answers, list_button=1, comments=comments, session = session)
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error_message = "this acount dont exist"
@@ -39,6 +40,7 @@ def login():
                 return redirect(url_for('route_list'))
             return render_template('login.html',error_message = error_message)
         return render_template('login.html')
+
 
 @app.route('/profile')
 def profile():
@@ -61,6 +63,14 @@ def question_list():
     sorted_questions = sorted(questions, key=itemgetter(order_by), reverse=order_direction == 'desc')
 
     return render_template('list.html', posts=sorted_questions, headers=data_manager.SORT_QUESTION_HEADERS, comments=comments)
+
+
+@app.route('/tags/<int:tag_id>')
+def questions_by_tag_name(tag_id):
+    question = data_manager.get_question_by_tag_id(tag_id)
+    tag_id = request.form.get("id")
+
+    return render_template('questions_by_tag.html', tag_id=tag_id, question=question)
 
 
 @app.route('/question/<int:question_id>')
@@ -90,6 +100,7 @@ def add_tag_to_question(question_id):
     tag = request.form.get("tag")
     data_manager.add_tag_to_question(question_id,tag)
     return redirect(url_for('display_question', question_id=question_id))
+
 
 @app.route('/question/<int:question_id>/add_vote', methods=['POST'])
 def add_vote_question(question_id):
@@ -255,6 +266,13 @@ def edit_comment(comment_id):
             return redirect(url_for('display_question', question_id=question_id))
         else:
             return redirect(url_for('route_list'))
+
+
+@app.route('/tags')
+def tag_list():
+    tags = data_manager.get_tags_quantity_by_question()
+
+    return render_template('tags.html', tags=tags)
 
 
 if __name__ == "__main__":

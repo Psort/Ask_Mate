@@ -130,6 +130,7 @@ h1.logo
 #newest
 {
 	background-color: #191d21;
+	height: 800px;
 }
 
 .entry
@@ -337,6 +338,7 @@ input.titletxt
 .sort
 {
 	float: left;
+
 }
 .sort_button button
 {
@@ -615,7 +617,6 @@ h3
 	color: white;
 	outline: none;
 	border: none;
-	font-size: lem;
 	background: transparent;
 	border-left: 2px solid white;
 	border-bottom: 2px solid white;
@@ -640,7 +641,6 @@ h3
 .inutBox input:focus~span
 {
 	transform: translateX(113px) translateY(-15px);
-	font-size: 0.Ben;
 	padding: 5px 10px;
 	background: #1c74b2;
 	letter-spacing: 0.2em;
@@ -672,4 +672,15 @@ h3
 	background-color:#034778;
 	color: white;
 	
+}
+.tag_link
+{
+	width: 20px;
+	margin-left: auto;
+	margin-right: auto;
+}
+.tag_list
+{
+	text-align: center;
+
 }

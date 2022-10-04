@@ -138,6 +138,17 @@ def get_tags_by_question_id(cursor, question_id):
 
 
 @database_common.connection_handler
+def get_question_by_tag_id(cursor, tag_id):
+    query = f"""
+                Select * FROM question
+                WHERE id IN (SELECT question_id FROM question_tag WHERE tag_id = {tag_id})
+
+            """
+    cursor.execute(query)
+    return cursor.fetchall()
+
+
+@database_common.connection_handler
 def get_question_id_by_answer_id(cursor, answer_id):
     query = f"""
                 SELECT question_id
@@ -393,12 +404,14 @@ def edit_comment(cursor, comment_id, message):
     cursor.execute(query)
     return cursor.fetchone()
 
+
 @database_common.connection_handler
 def add_tag(cursor, tag):
     query = f""" 
             INSERT into tag (name) VALUES('{tag}');
             """
     cursor.execute(query)
+
 
 @database_common.connection_handler
 def add_tag_to_question(cursor, question_id, tag):
@@ -410,6 +423,7 @@ def add_tag_to_question(cursor, question_id, tag):
                     VALUES({question_id},(SELECT id from tag WHERE name = '{tag}')) 
             """
         cursor.execute(query)
+
 
 @database_common.connection_handler
 def delete_view(cursor,question_id):
@@ -436,8 +450,22 @@ def check_tag_in_question(question_id, tag):
             return False
     return True
 
+
 def check_is_username(username,password):
     if username in users:
         if password == users[username]:
             return True
     return False
+
+
+@database_common.connection_handler
+def get_tags_quantity_by_question(cursor):
+    query = '''
+            SELECT tag.id, tag.name , count (question_tag.question_id)
+            FROM tag
+            INNER JOIN question_tag
+            ON tag.id = question_tag.tag_id
+            GROUP BY tag.id
+    '''
+    cursor.execute(query)
+    return cursor.fetchall()
