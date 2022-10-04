@@ -68,7 +68,7 @@ CREATE TABLE tag (
 DROP TABLE IF EXISTS public.users;
 CREATE TABLE users (
     id serial NOT NULL,
-    user_name text,
+    username text,
     password text,
     registration_date timestamp without time zone,
     num_asked_question integer,

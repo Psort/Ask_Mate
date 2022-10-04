@@ -3,8 +3,8 @@ import time
 from unicodedata import name
 import database_common
 from server import question_list
+import bcrypt
 
-users = {'john@doe.com': 'a'}
 
 QUESTION_HEADERS = ['id', 'submission_time', 'view_number',
                     'vote_number', 'title', 'message', 'image']
@@ -16,9 +16,10 @@ SORT_QUESTION_HEADERS = ['id', 'submission_time', 'view_number', 'vote_number']
 @database_common.connection_handler
 def get_question_data(cursor):
     query = """
-                SELECT *
+                SELECT *,users.username as user
                 FROM question
-                ORDER BY id
+                INNER JOIN users on users.id = question.user_id
+
             """
     cursor.execute(query)
     return cursor.fetchall()
@@ -27,9 +28,10 @@ def get_question_data(cursor):
 @database_common.connection_handler
 def  get_comments(cursor):
     query = """
-                SELECT *
+                SELECT *,users.username as user
                 FROM comment
-                ORDER BY id
+                INNER JOIN users on users.id = comment.user_id
+                ORDER BY comment.id
             """
     cursor.execute(query)
     return cursor.fetchall()
@@ -38,8 +40,9 @@ def  get_comments(cursor):
 @database_common.connection_handler
 def get_latest_question(cursor):
     query = """
-            SELECT * 
+            SELECT *,users.username as user
             FROM question
+            INNER JOIN users on users.id = question.user_id
             ORDER BY submission_time DESC 
             LIMIT 5;
     """
@@ -50,9 +53,9 @@ def get_latest_question(cursor):
 @database_common.connection_handler
 def get_answer_data(cursor):
     query = """
-                SELECT *
+                SELECT *,users.username as user
                 FROM answer
-                ORDER BY id
+                INNER JOIN users on users.id = answer.user_id
             """
     cursor.execute(query)
     return cursor.fetchall()
@@ -61,10 +64,11 @@ def get_answer_data(cursor):
 @database_common.connection_handler
 def get_comment_by_question_id(cursor, question_id):
     query = f"""
-                SELECT *
+                SELECT *,users.username as user
                 FROM comment
-                WHERE question_id = {question_id}
-                ORDER BY id
+                INNER JOIN users on users.id = comment.user_id
+                WHERE comment.question_id = {question_id}
+                ORDER BY comment.id
             """
     cursor.execute(query)
     return cursor.fetchall()
@@ -73,10 +77,11 @@ def get_comment_by_question_id(cursor, question_id):
 @database_common.connection_handler
 def get_question_by_id(cursor, question_id):
     query = f"""
-                SELECT *
+                SELECT *,users.username as user
                 FROM question
-                WHERE id = {question_id}
-                ORDER BY id
+                INNER JOIN users on users.id = question.user_id
+                WHERE question.id = {question_id}
+                ORDER BY question.id
             """
     cursor.execute(query)
     return cursor.fetchall()
@@ -85,10 +90,11 @@ def get_question_by_id(cursor, question_id):
 @database_common.connection_handler
 def get_answers_by_id(cursor, answer_id):
     query = f"""
-                SELECT *
+                SELECT *,users.username as user
                 FROM answer
-                WHERE id= {answer_id}
-                ORDER BY id
+                INNER JOIN users on users.id = answer.user_id
+                WHERE answer.id= {answer_id}
+                ORDER BY answer.id
             """
     cursor.execute(query)
     return cursor.fetchall()
@@ -107,10 +113,11 @@ def add_view(cursor, question_id):
 @database_common.connection_handler
 def get_answers_by_question_id(cursor, question_id):
     query = f"""
-                SELECT *
+                SELECT *,users.username as user
                 FROM answer
+                INNER JOIN users on users.id = answer.user_id
                 WHERE question_id = {question_id}
-                ORDER BY id
+                ORDER BY answer.id
             """
     cursor.execute(query)
     return cursor.fetchall()
@@ -239,12 +246,12 @@ def add_new_answer(cursor, question_id, message, image):
 
 
 @database_common.connection_handler
-def add_comment_to_question(cursor, question_id, message):
+def add_comment_to_question(cursor, question_id, message,user_id):
     submission_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     query = f"""
-                    INSERT INTO comment (question_id, answer_id, message, submission_time, edited_count)
-                    VALUES ({question_id}, NULL, '{message}', '{submission_time}', 0) 
+                    INSERT INTO comment (user_id,question_id, answer_id, message, submission_time, edited_count)
+                    VALUES ('{user_id}',{question_id}, NULL, '{message}', '{submission_time}', 0) 
                     RETURNING question_id
             """
     cursor.execute(query)
@@ -252,12 +259,12 @@ def add_comment_to_question(cursor, question_id, message):
 
 
 @database_common.connection_handler
-def add_comment_to_answer(cursor, answer_id, message):
+def add_comment_to_answer(cursor, answer_id, message,user_id):
     submission_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     query = f"""
-                    INSERT INTO comment (question_id, answer_id, message, submission_time, edited_count)
-                    VALUES (NULL, {answer_id}, '{message}', '{submission_time}', 0) 
+                    INSERT INTO comment (,user_id,question_id, answer_id, message, submission_time, edited_count)
+                    VALUES ('{user_id}',NULL, {answer_id}, '{message}', '{submission_time}', 0) 
 
             """
     cursor.execute(query)
@@ -393,10 +400,11 @@ def search_answers(cursor, search_item):
 @database_common.connection_handler
 def get_comment_by_id(cursor, comment_id):
     query = f"""
-                SELECT *
+                SELECT *,users.username as user
                 FROM comment
-                WHERE id= {comment_id}
-                ORDER BY id
+                INNER JOIN users on users.id = comment.user_id
+                WHERE comment.id= {comment_id}
+                ORDER BY comment.id
             """
     cursor.execute(query)
     return cursor.fetchall()
@@ -442,6 +450,31 @@ def delete_view(cursor,question_id):
     cursor.execute(query)
 
 
+@database_common.connection_handler
+def get_users(cursor):
+    query = f"""
+                SELECT * from users
+            """
+    cursor.execute(query)
+    return cursor.fetchall()
+@database_common.connection_handler
+def get_user_by_username(cursor,username):
+    query = f"""
+                SELECT * from users
+                WHERE username = '{username}'
+            """
+    cursor.execute(query)
+    return cursor.fetchone()
+
+@database_common.connection_handler
+def create_account(cursor,username,password):
+    registration_date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    query = f"""
+            INSERT INTO users (username,password,registration_date,num_asked_question,num_answer,num_comment,reputation)
+            VALUES ('{username}', '{password}', '{registration_date}',0, 0, 0, 0);
+        """
+    cursor.execute(query)
+
 def is_tag_in_tags(tag):
     tags = get_tags()
     for element in tags:
@@ -457,8 +490,25 @@ def check_tag_in_question(question_id, tag):
             return False
     return True
 
-def check_is_username(username,password):
-    if username in users:
-        if password == users[username]:
-            return True
+def try_login(username,password):
+    users = get_users()
+    for user in users:
+        if username == user['username']:
+            if password == user['password']:
+                return True
     return False
+
+def check_is_username(username):
+    users = get_users()
+    for user in users:
+        if username == user['username']:
+            return False
+    return True
+
+def hash_password(plain_text_password):
+    hashed_bytes = bcrypt.hashpw(plain_text_password.encode('utf-8'), bcrypt.gensalt())
+    return hashed_bytes.decode('utf-8')
+
+def verify_password(plain_text_password, hashed_password):
+    hashed_bytes_password = hashed_password.encode('utf-8')
+    return bcrypt.checkpw(plain_text_password.encode('utf-8'), hashed_bytes_password)
