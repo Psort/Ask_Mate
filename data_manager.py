@@ -16,7 +16,7 @@ SORT_QUESTION_HEADERS = ['id', 'submission_time', 'view_number', 'vote_number']
 @database_common.connection_handler
 def get_question_data(cursor):
     query = """
-                SELECT *,users.username as user
+                SELECT question.*,users.username as user
                 FROM question
                 INNER JOIN users on users.id = question.user_id
 
@@ -57,7 +57,7 @@ def get_comments_by_user_id(cursor,user_id):
 @database_common.connection_handler
 def  get_comments(cursor):
     query = """
-                SELECT *,users.username as user
+                SELECT comment.*,users.username as user
                 FROM comment
                 INNER JOIN users on users.id = comment.user_id
                 ORDER BY comment.id
@@ -181,6 +181,17 @@ def get_tags_by_question_id(cursor, question_id):
 
 
 @database_common.connection_handler
+def get_question_by_tag_id(cursor, tag_id):
+    query = f"""
+                Select * FROM question
+                WHERE id IN (SELECT question_id FROM question_tag WHERE tag_id = {tag_id})
+
+            """
+    cursor.execute(query)
+    return cursor.fetchall()
+
+
+@database_common.connection_handler
 def get_question_id_by_answer_id(cursor, answer_id):
     query = f"""
                 SELECT question_id
@@ -254,13 +265,13 @@ def add_like_answer(cursor, answer_id):
 
 
 @database_common.connection_handler
-def add_new_question(cursor, title, message, image):
+def add_new_question(cursor, title, message, image,user_id):
     submission_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     if image != 'NULL':
         image = f"'{image}'"
     query = f"""
-                INSERT INTO question (submission_time, view_number, vote_number, title, message, image, dislike)
-                VALUES ('{submission_time}', -1, 0, '{title}', '{message}', {image}, 0) 
+                INSERT INTO question (user_id,submission_time, view_number, vote_number, title, message, image, dislike)
+                VALUES ({user_id},'{submission_time}', -1, 0, '{title}', '{message}', {image}, 0) 
                 RETURNING id
     """
     cursor.execute(query)
@@ -268,13 +279,13 @@ def add_new_question(cursor, title, message, image):
 
 
 @database_common.connection_handler
-def add_new_answer(cursor, question_id, message, image):
+def add_new_answer(cursor, question_id, message, image,user_id):
     submission_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     if image != 'NULL':
         image = f"'{image}'"
     query = f"""
-                INSERT INTO answer (submission_time, vote_number, question_id, message, image, dislike)
-                VALUES ('{submission_time}', 0, {question_id}, '{message}', {image}, 0) 
+                INSERT INTO answer (user_id,submission_time, vote_number, question_id, message, image, dislike)
+                VALUES ({user_id},'{submission_time}', 0, {question_id}, '{message}', {image}, 0) 
                 RETURNING question_id
         """
     cursor.execute(query)
@@ -296,10 +307,11 @@ def add_comment_to_question(cursor, question_id, message,user_id):
 
 @database_common.connection_handler
 def add_comment_to_answer(cursor, answer_id, message,user_id):
+
     submission_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
     query = f"""
-                    INSERT INTO comment (,user_id,question_id, answer_id, message, submission_time, edited_count)
+                    INSERT INTO comment (user_id,question_id, answer_id, message, submission_time, edited_count)
                     VALUES ('{user_id}',NULL, {answer_id}, '{message}', '{submission_time}', 0) 
 
             """
@@ -324,7 +336,7 @@ def edit_answer(cursor, answer_id, message, image):
         image = f"'{image}'"
     query = f"""
                 UPDATE answer
-                SET message = "{message}", image = {image}
+                SET message = '{message}', image = '{image}'
                 WHERE id = {answer_id}
                 RETURNING question_id
         """
@@ -469,12 +481,14 @@ def edit_comment(cursor, comment_id, message):
     cursor.execute(query)
     return cursor.fetchone()
 
+
 @database_common.connection_handler
 def add_tag(cursor, tag):
     query = f""" 
             INSERT into tag (name) VALUES('{tag}');
             """
     cursor.execute(query)
+
 
 @database_common.connection_handler
 def add_tag_to_question(cursor, question_id, tag):
@@ -505,10 +519,10 @@ def get_users(cursor):
     cursor.execute(query)
     return cursor.fetchall()
 @database_common.connection_handler
-def get_user_by_username(cursor,username):
+def get_user_by_user_id(cursor,user_id):
     query = f"""
                 SELECT * from users
-                WHERE username = '{username}'
+                WHERE id = '{user_id}'
             """
     cursor.execute(query)
     return cursor.fetchone()
@@ -522,6 +536,25 @@ def create_account(cursor,username,password):
         """
     cursor.execute(query)
 
+@database_common.connection_handler
+def get_users_list(cursor):
+    query = f"""
+        SELECT id, username, registration_date, num_asked_question, num_answer, num_comment, reputation
+        FROM users
+        ORDER BY id asc;
+    """
+    cursor.execute(query)
+    return cursor.fetchall()
+@database_common.connection_handler
+def get_user_id_by_username(cursor,username):
+    query = f"""
+        SELECT id
+        FROM users
+        WHERE username = '{username}'
+        ORDER BY id asc;
+    """
+    cursor.execute(query)
+    return cursor.fetchone()
 
 
 def is_tag_in_tags(tag):
@@ -546,6 +579,19 @@ def try_login(username,password):
             if password == user['password']:
                 return True
     return False
+
+
+@database_common.connection_handler
+def get_tags_quantity_by_question(cursor):
+    query = '''
+            SELECT tag.id, tag.name , count (question_tag.question_id)
+            FROM tag
+            INNER JOIN question_tag
+            ON tag.id = question_tag.tag_id
+            GROUP BY tag.id
+    '''
+    cursor.execute(query)
+    return cursor.fetchall()
 
 def check_is_username(username):
     users = get_users()
