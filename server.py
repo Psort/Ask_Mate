@@ -27,7 +27,7 @@ def route_list():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    error_message = "this acount dont exist"
+    error_message = "Wrong login or password"
     if session != {}:
         return redirect(url_for('profile'))
     else:
@@ -36,8 +36,7 @@ def login():
 
             username = request.form['username']
             password = request.form['password']
-
-            if data_manager.try_login(username, password):
+            if data_manager.try_login(username,password):
                 session['username'] = username
                 session['id'] = data_manager.get_user_id_by_username(username)[
                     'id']
@@ -69,7 +68,7 @@ def Sign_up():
             session.pop('user_id', None)
 
             username = request.form['username']
-            password = request.form['password']
+            password = data_manager.hash_password(request.form['password'])
             if data_manager.check_is_username(username):
                 data_manager.create_account(username, password)
                 session['username'] = username
@@ -171,8 +170,7 @@ def add_vote_answer(answer_id):
 def add_dislike_answer(answer_id):
     if session == {}:
         return redirect(url_for('login'))
-    question_id = data_manager.add_like_answer(answer_id)
-    data_manager.dislike_answer(question_id['question_id'])
+    question_id = data_manager.dislike_answer(answer_id)
     return redirect(url_for("display_question", question_id=question_id['question_id'], answer_id=answer_id))
 
 
@@ -318,8 +316,10 @@ def del_comment_to_answers(comment_id, question_id):
 def search():
     search_item = request.form['search']
     questions = data_manager.search_question(search_item)
+    print(questions)
     if questions == []:
         questions = data_manager.search_answers(search_item)
+        
         return render_template('list.html', headers=data_manager.SORT_QUESTION_HEADERS, posts=questions)
     else:
         return render_template('list.html', headers=data_manager.SORT_QUESTION_HEADERS, posts=questions)

@@ -236,10 +236,12 @@ def add_like_answer(cursor, id):
 def dislike_answer(cursor, answer_id):
     query = f"""
             UPDATE answer
-            SET dislike = dislike + 1 ,view_number = view_number - 1
+            SET dislike = dislike + 1
             WHERE id = {answer_id}
+            RETURNING question_id
             """
     cursor.execute(query)
+    return cursor.fetchone()
 
 
 @database_common.connection_handler
@@ -432,7 +434,7 @@ def del_comment_by_question_id(cursor, question_id):
 def search_question(cursor, search_item):
 
     query = f"""
-                SELECT *,users.username as user
+                SELECT question.*,users.username as user
                 FROM question
                 INNER JOIN users on users.id = question.user_id 
                 WHERE title LIKE '%{search_item}%'
@@ -459,7 +461,7 @@ def search_answers(cursor, search_item):
 @database_common.connection_handler
 def get_comment_by_id(cursor, comment_id):
     query = f"""
-                SELECT *,users.username as user
+                SELECT comment.*,users.username as user
                 FROM comment
                 INNER JOIN users on users.id = comment.user_id
                 WHERE comment.id= {comment_id}
@@ -576,8 +578,7 @@ def try_login(username,password):
     users = get_users()
     for user in users:
         if username == user['username']:
-            if password == user['password']:
-                return True
+                return verify_password(password,user['password'])
     return False
 
 
