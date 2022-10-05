@@ -161,7 +161,17 @@
                 {% for answer in answers %}
                 <div class="answer">
                     <div class="comment_heading">
-                        <div class="comment_user">{{answer.user}}:</div>
+                        <div class="comment_user">
+
+                        {% if answer['id'] == question[0]['accepted_answer'] or session['id'] == question[0]['user_id'] %}
+                            {% if session['id'] != question[0]['user_id'] %}
+                                <button class="accepted-answer"><i class="fa fa-check " aria-hidden="true"></i></button>
+                            {% else %}
+                                <form action="{{ url_for('accepted_answer', question_id=question[0]['id'], answer_id=answer.id) }}" method="post">
+                                    <button class="not-accepted-answer {{'accepted-answer' if answer['id'] == question[0]['accepted_answer']  }}"><i class="fa fa-check " aria-hidden="true"></i></button>
+                                </form>
+                            {%endif%}
+                            {{answer.user}}:</div>
                         <div class="answer_times"><h6>Edited {{ answer.submission_time }} times</h6></div>
                     </div>
                     <div class="coment_main">
@@ -184,15 +194,14 @@
                         <form action="{{ url_for('add_dislike_answer', answer_id=answer.id) }}" method="post">
                             <button><i class="demo-icon icon-thumbs-down-alt"> </i></button>     {{answer.dislike }}
                         </form>
+
+                        {%endif%}
                             {% if answer_id != None %}
-                            <form action="{{ url_for('accepted_answer', answer_id=answer.id) }}" method="post">
-                                <button><i class="fa fa-check" aria-hidden="true"></i></button>
-                                {{ answer.accepted_answer }}
-                            </form>
                             <form action="{{ url_for('add_comment_to_answer', answer_id=answer.id) }}">
                                 <button>Add comment</button>
                             </form>
                             {%endif%}
+
                         </div>
                         {%if session['id'] == answer.user_id %}
                         <div class="answer_delete_and_edit">
