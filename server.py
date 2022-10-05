@@ -140,7 +140,8 @@ def add_tag_to_question(question_id):
 def add_vote_question(question_id):
     if session == {}:
         return redirect(url_for('login'))
-    data_manager.add_like_question(question_id)
+    user_id = data_manager.add_like_question(question_id)
+    data_manager.add_reputation(user_id['user_id'], '+5')
     return redirect(url_for("display_question", question_id=question_id))
 
 
@@ -148,7 +149,8 @@ def add_vote_question(question_id):
 def add_dislike_question(question_id):
     if session == {}:
         return redirect(url_for('login'))
-    data_manager.dislike_question(question_id)
+    user_id = data_manager.dislike_question(question_id)
+    data_manager.add_reputation(user_id['user_id'], '-2')
     return redirect(url_for("display_question", question_id=question_id))
 
 
@@ -157,7 +159,8 @@ def add_vote_answer(answer_id):
     if session == {}:
         return redirect(url_for('login'))
     question_id = data_manager.add_like_answer(answer_id)
-    data_manager.delte_vote(question_id['question_id'])
+    data_manager.add_reputation(question_id['user_id'], '+10')
+    data_manager.delete_view(question_id['question_id'])
     return redirect(url_for("display_question", question_id=question_id['question_id'], answer_id=answer_id))
 
 
@@ -166,6 +169,8 @@ def add_dislike_answer(answer_id):
     if session == {}:
         return redirect(url_for('login'))
     question_id = data_manager.dislike_answer(answer_id)
+    data_manager.add_reputation(question_id['user_id'], '-2')
+    data_manager.delete_view(question_id['question_id'])
     return redirect(url_for("display_question", question_id=question_id['question_id'], answer_id=answer_id))
 
 
