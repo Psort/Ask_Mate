@@ -210,9 +210,34 @@ def add_like_question(cursor, question_id):
     query = f"""
                 UPDATE question
                 SET vote_number = vote_number + 1 ,view_number = view_number - 1
+                WHERE id = {question_id};
+                SELECT user_id FROM question
                 WHERE id = {question_id}
             """
     cursor.execute(query)
+    return cursor.fetchone()
+
+
+@database_common.connection_handler
+def add_reputation(cursor, user_id, num_of_reputation):
+    query = f"""
+                UPDATE users
+                SET reputation = reputation + {num_of_reputation}
+                WHERE id = {user_id}
+            """
+    cursor.execute(query)
+
+
+# @database_common.connection_handler
+# def add_reputation_for_voteup(cursor, question_id, user_id, points):
+#     query = f"""
+#                 UPDATE users
+#                 SET users.reputation = users.reputation + {points}
+#                 INNER JOIN question
+#                 ON question.user_id = users.id
+#                 WHERE users.id = {user_id}
+#             """
+#     cursor.execute(query)
 
 
 @database_common.connection_handler
@@ -220,19 +245,12 @@ def dislike_question(cursor, question_id):
     query = f"""
                 UPDATE question
                 SET dislike = dislike + 1 ,view_number = view_number - 1
+                WHERE id = {question_id};
+                SELECT user_id FROM question
                 WHERE id = {question_id}
     """
     cursor.execute(query)
-
-
-@database_common.connection_handler
-def add_like_answer(cursor, id):
-    query = f"""
-            UPDATE answer
-            SET vote_number = vote_number + 1
-            WHERE id = {id}
-            """
-    cursor.execute(query)
+    return cursor.fetchone()
 
 
 @database_common.connection_handler
@@ -240,8 +258,8 @@ def dislike_answer(cursor, answer_id):
     query = f"""
             UPDATE answer
             SET dislike = dislike + 1
-            WHERE id = {answer_id}
-            RETURNING question_id
+            WHERE id = {answer_id};
+            SELECT question_id, user_id FROM answer WHERE id = {answer_id}
             """
     cursor.execute(query)
     return cursor.fetchone()
@@ -262,8 +280,7 @@ def add_like_answer(cursor, answer_id):
                 UPDATE answer
                 SET vote_number = vote_number + 1
                 WHERE id = {answer_id};
-                SELECT question_id FROM answer WHERE id = {answer_id}
---                 RETURNING question_id
+                SELECT question_id, user_id FROM answer WHERE id = {answer_id}  
             """
     cursor.execute(query)
     return cursor.fetchone()
