@@ -46,48 +46,36 @@
 	
 	</header>
 	<main>
-	
 		<article>
-		
-			<section id="newest">
-				
+			<div class="break_comment"></div>
 				<div class="entries">
-
 					<form enctype = "multipart/form-data" action="{{ url_for('add_question',question_id=question_id) if question==None else url_for('edit_question',question_id=question_id) }}" method="post">
-						<div class="add_post"> 
-					
+						<div class="profile_question">
+							<form action=""> </form>
 							<div class="titletxt">
 								<textarea id="title"  name="title" cols="10" rows = "1"  placeholder="title">{{question['title']}}</textarea>
 							</div>
 							<div class="messagetxt">
 								<textarea id="message" name="message" cols="30" rows = "6" placeholder="Message" >{{question['message']}}</textarea>
 							</div>
+						
 							<div>
 								<p class="img"><input type = "file" name = "filename" ></p>
 							</div>
 							<div class="button">
-								<button type="submit"><i class="icon-direction"></i>Add question</button>
-			
-				</div>
-                
-				
-			</section>
-
-			
-		
+								<button type="submit"><i class="icon-direction"></i>{% if question==None %}Add question{%else%}Edit Question{%endif%}</button>
+							</div>
+						</div>
+					</form>
 		</article>
-        <div class="break">
-
-        </div>
-	
 	</main>
 
-	<footer>
-
-		<div class="info">
-			Wszelkie prawa zastrzeżone &copy; 2022 Dziękuję za wizytę!
-		</div>
-	
-	</footer>
 </body>
+<footer>
+
+	<div class="info">
+		Wszelkie prawa zastrzeżone &copy; 2022 Dziękuję za wizytę!
+	</div>
+
+</footer>
 </html>

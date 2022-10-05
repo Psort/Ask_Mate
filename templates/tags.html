@@ -48,24 +48,18 @@
 
 
 <main>
-<section id="newest">
-    <div class = 'tag_list'>
-
-       {% for t in tags %}
-            <form>
-           <h1><a href="{{ url_for('questions_by_tag_name', tag_id=t['id']) }}">{{ t['name'] }}</a>  {{ t['count'] }}</h1>
-            </form>
+    <div class="entries">
+        {% for t in tags %}
+            <div class = 'tag_list'>
+                <form>
+                    <h1><a href="{{ url_for('questions_by_tag_name', tag_id=t['id']) }}">{{ t['name'] }}</a>  {{ t['count'] }}</h1>
+                </form>
+            </div>
         {% endfor %}
-
-
-
-
     </div>
-
-
-</section>
 </main>
 </body>
+
 <footer>
 
         <div class="info">
@@ -73,3 +67,4 @@
         </div>
 
     </footer>
+ </html>

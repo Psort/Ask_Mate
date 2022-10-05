@@ -46,17 +46,133 @@
 
         </header>
         <main>
-            Hello {{username}}
+            <div class="Profile">
+                <div class="name">{{user.username}}</div>
+                <div class="noaq" >Number of asked questions:{{user.num_asked_question}}</div>
+                <div class="noa">Number of answers:{{user.num_answer}}</div> 
+                <div class="noc">Number of comments:{{user.num_comment}}</div> 
+                <div class="reputation">Reputation:{{user.reputation}}</div> 
+                <div class="id_and_time">
+                    <div class="id">
+                        id:{{user.id}} 
+                    </div>
+                    <div class="join_time">
+                        join_time:{{user.registration_date}}
+                    </div>
+                </div>
+            </div>
             
         </main>
-
-        <footer>
-
-            <div class="info">
-                Wszelkie prawa zastrzeżone &copy; 2022 Dziękuję za wizytę!
+        <div class="user_post">
+            <div>
+               Your Question: 
+               {%for question in questions%}
+                <a class="question_link" href="{{ url_for('display_question', question_id=question['id']) }}">
+                    <div class="profile_question">
+                        <h6 class="profile_time">{{question['submission_time']}}</h6>
+                                <div class="profile_title"><h2>{{question['title']}}</h2></div>
+                                <div class="profile_entrytxt"><p>{{question['message']}} </p></div>
+                                <div class="entryimg">
+                                    {% if question['image'] != None  %}
+                                        <img src="{{url_for('static',filename='photo/'+question['image'])}}" >
+                                    {%endif%}
+                                </div>
+                                <footer>
+                                    <div class="view"><i class="demo-icon icon-eye"> </i> {{question['view_number']}}</div>
+                                    <div class="vote"><i class="demo-icon icon-thumbs-up-alt"> </i>{{question['vote_number']}}</div>
+                                </footer>
+                                <div class="profile_tag">
+                                    {% for tag in profile_tag %}
+                                        {%if tag['question_id'] == question.id%}
+                                        <div class="tag1">
+                                            {%for t in tags%}
+                                            {%if tag['tag_id'] == t['id']%}
+                                            <h6 class="tags">#{{t['name']}}</h6>
+                                            {%endif%}
+                                            {%endfor%}
+                                        </div>
+                                        {%endif%}
+                                    {%endfor%}
+                                </div>
+                        
+                    </div>
+                </a>
+                <div class="break_comment"></div>
+               {%endfor%}
             </div>
+            
+            <div class="comments">
+                Your Answers:
+                <div class="break_comment"></div>
+                {% for answer in answers %}
+                <a class="answer_link" href="{{ url_for('display_question', question_id=answer['question_id']) }}">
+                    <div class="profile_answer">
+                        <div class="profile_comment_heading">
+                            <div class="answer_times"><h6>Edited {{ answer.submission_time }} times</h6></div>
+                        </div>
+                        <div class="coment_main">
+                            <div class="comment_text">
+                                <div class="entrytxt">
+                                {{answer.message}} 
+                                </div>
+                            </div>
+                        </div>
+                        <div class="entryimg">
+                            {% if answer['image'] != None %}
+                                <img src="{{url_for('static',filename='photo/'+answer['image'])}} ">
+                            {%endif%}
+                        </div>
+                        <div class="profile_answer_buttons">
+                                <form action="{{ url_for('add_vote_answer', answer_id=answer.id) }}" method="question">
+                                    <i class="demo-icon icon-thumbs-up-alt"> </i>    {{answer.vote_number }}
+                                </form>
+                        </div>
 
-        </footer>
+
+                    </div>
+                    </a>
+                {%endfor%}
+            </div>
+            <div class="comments">
+                Your comments:
+                <div class="break_comment"></div>
+                {% for comment in comments %}
+                {%if comment['question_id'] == None %}
+                    {%for answer in answers %}
+                        {%if answer.id == comment['answer_id']%}
+                            <a class="comment_link" href="{{ url_for('display_question', question_id = answer['question_id']) }}">
+                        {%endif%}
+                    {%endfor%}
+                {%else%}
+                    <a class="commen_link" href="{{ url_for('display_question', question_id = comment['question_id']) }}">
+                {%endif%}
+
+                    <div class="profile_comment">
+                        <div class="heading">
+                            <h6>Edited {{ comment.edited_count }} times</h6>
+                        </div>
+                        <div class="coment_main">
+                            <div class="comment_text">
+                                {{comment.message}}
+                            </div>
+                        </div>
+                    </div>
+                    </a>
+
+                {%endfor%}
+                
+            </div>
+  
+        </div>
+
+        
+        <div class="break_comment"></div>
 </body>
+<footer>
+    <div class="info">
+        Wszelkie prawa zastrzeżone &copy; 2022 Dziękuję za wizytę!
+    </div>
+
+</footer>
 
 </html>
