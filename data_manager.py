@@ -557,6 +557,19 @@ def get_user_id_by_username(cursor,username):
     return cursor.fetchone()
 
 
+
+@database_common.connection_handler
+def accepted_answer(cursor, answer_id, accepted_answer):
+    query = f"""
+                UPDATE answer
+                SET accepted_answer = "{accepted_answer}"
+                WHERE id = {answer_id}
+                RETURNING question_id
+        """
+    cursor.execute(query)
+    return cursor.fetchone()
+
+
 def is_tag_in_tags(tag):
     tags = get_tags()
     for element in tags:

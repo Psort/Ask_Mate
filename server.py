@@ -374,5 +374,13 @@ def tag_list():
     return render_template('tags.html', tags=tags)
 
 
+@app.route('/answer/<int:answer_id>/accept_answer', methods=['POST'])
+def accepted_answer(answer_id):
+    if session == {}:
+        return redirect(url_for('login'))
+    question_id = data_manager.accepted_answer(answer_id, accepted_answer)
+    return redirect(url_for('display_question', question_id=question_id['question_id'])
+
+
 if __name__ == "__main__":
     app.run(debug=True)
