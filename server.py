@@ -2,6 +2,7 @@ from operator import itemgetter
 from flask import Flask, render_template, request, redirect, url_for,session
 import data_manager
 import connection
+import bcrypt
 
 app = Flask(__name__)
 app.secret_key = 'somesecretkeythatonlyishouldknow'
@@ -48,6 +49,26 @@ def profile():
   if session == {}:
     return redirect(url_for('login'))
   return render_template('profile.html',username = username)
+
+
+@app.route('/Sign_up', methods=['GET', 'POST'])
+def Sign_up():
+    error_message = "such an account already exists"
+    if session != {}:
+        return redirect(url_for('profile'))
+    else:
+        if request.method == 'POST':
+            session.pop('user_id', None)
+
+            username = request.form['username']
+            password = request.form['password']
+            if  data_manager.check_is_username(username):
+                data_manager.create_account(username,password)
+                session['username'] = username
+                session['id'] = data_manager.get_user_by_username(username)['id']
+                return redirect(url_for('profile'))
+            return render_template('Sign_up.html',error_message = error_message)
+        return render_template('Sign_up.html')
 
 @app.route('/logout')
 def logout():
