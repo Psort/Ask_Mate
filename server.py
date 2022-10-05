@@ -1,4 +1,3 @@
-from multiprocessing.connection import answer_challenge
 from operator import itemgetter
 from flask import Flask, render_template, request, redirect, url_for, session
 import data_manager
@@ -7,11 +6,6 @@ import bcrypt
 
 app = Flask(__name__)
 app.secret_key = 'somesecretkeythatonlyishouldknow'
-
-
-# @app.route('/')
-# def display_latest_questions():
-#     pass
 
 
 @app.route('/')
@@ -172,8 +166,7 @@ def add_vote_answer(answer_id):
 def add_dislike_answer(answer_id):
     if session == {}:
         return redirect(url_for('login'))
-    question_id = data_manager.add_like_answer(answer_id)
-    data_manager.dislike_answer(question_id['question_id'])
+    question_id = data_manager.dislike_answer(answer_id)
     return redirect(url_for("display_question", question_id=question_id['question_id'], answer_id=answer_id))
 
 
@@ -369,6 +362,7 @@ def user_info(user_id):
     profile_tag = data_manager.get_all_tags()
     return render_template('profile.html', user=user, questions=questions, answers=answers, comments=comments,
                            tags=tags, profile_tag=profile_tag)
+
 
 
 @app.route('/tags')
