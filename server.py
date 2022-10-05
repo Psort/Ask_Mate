@@ -391,9 +391,11 @@ def accepted_answer(question_id, answer_id):
 
     question = data_manager.get_question_by_id(question_id)
     if question[0]['accepted_answer'] == answer_id:
-        data_manager.reset_accepted_answer(question_id)
+        user_id = data_manager.reset_accepted_answer(question_id, answer_id)
+        data_manager.add_reputation(user_id['user_id'], '-15')
     else:
-        data_manager.accepted_answer(question_id, answer_id)
+        user_id = data_manager.accepted_answer(question_id, answer_id)
+        data_manager.add_reputation(user_id['user_id'], '+15')
 
     return redirect(url_for('display_question', question_id=question_id))
 

@@ -591,19 +591,27 @@ def accepted_answer(cursor, question_id, answer_id):
     query = f"""
                 UPDATE question
                 SET accepted_answer = {answer_id}
-                WHERE id = {question_id}
+                WHERE id = {question_id};
+                SELECT user_id 
+                FROM answer
+                WHERE id = {answer_id}
         """
     cursor.execute(query)
+    return cursor.fetchone()
 
 
 @database_common.connection_handler
-def reset_accepted_answer(cursor, question_id):
+def reset_accepted_answer(cursor, question_id, answer_id):
     query = f"""
                 UPDATE question
                 SET accepted_answer = Null
-                WHERE id = {question_id}
+                WHERE id = {question_id};
+                SELECT user_id 
+                FROM answer
+                WHERE id = {answer_id}
         """
     cursor.execute(query)
+    return cursor.fetchone()
 
 def is_tag_in_tags(tag):
     tags = get_tags()
