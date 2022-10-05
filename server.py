@@ -372,5 +372,19 @@ def tag_list():
     return render_template('tags.html', tags=tags)
 
 
+@app.route('/answer/<int:question_id>/<int:answer_id>/accept_answer', methods=['POST'])
+def accepted_answer(question_id, answer_id):
+    if session == {}:
+        return redirect(url_for('login'))
+
+    question = data_manager.get_question_by_id(question_id)
+    if question[0]['accepted_answer'] == answer_id:
+        data_manager.reset_accepted_answer(question_id)
+    else:
+        data_manager.accepted_answer(question_id, answer_id)
+
+    return redirect(url_for('display_question', question_id=question_id))
+
+
 if __name__ == "__main__":
     app.run(debug=True)

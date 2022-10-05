@@ -1018,3 +1018,11 @@ h1
 	padding: 8px 4px;
 	text-align: left;
 }
+
+.not-accepted-answer {
+	background-color: gray;
+}
+
+.accepted-answer {
+	background-color: green;
+}
