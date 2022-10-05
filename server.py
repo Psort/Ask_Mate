@@ -1,4 +1,3 @@
-from multiprocessing.connection import answer_challenge
 from operator import itemgetter
 from flask import Flask, render_template, request, redirect, url_for, session
 import data_manager
@@ -7,11 +6,6 @@ import bcrypt
 
 app = Flask(__name__)
 app.secret_key = 'somesecretkeythatonlyishouldknow'
-
-
-# @app.route('/')
-# def display_latest_questions():
-#     pass
 
 
 @app.route('/')
@@ -55,7 +49,8 @@ def profile():
     comments = data_manager.get_comments_by_user_id(session['id'])
     tags = data_manager.get_tags()
     profile_tag = data_manager.get_all_tags()
-    return render_template('profile.html', user=user,questions=questions,answers=answers,comments = comments,tags=tags,profile_tag=profile_tag)
+    return render_template('profile.html', user=user, questions=questions, answers=answers, comments=comments,
+                           tags=tags, profile_tag=profile_tag)
 
 
 @app.route('/Sign_up', methods=['GET', 'POST'])
@@ -116,8 +111,8 @@ def display_question(question_id):
     comments = data_manager.get_comments()
     question_tags = data_manager.get_tags_by_question_id(question_id)
 
-    return render_template('question.html', question_id=question_id, answers=answers, question=question, question_tags=question_tags, comments=comments)
-
+    return render_template('question.html', question_id=question_id, answers=answers, question=question,
+                           question_tags=question_tags, comments=comments)
 
 
 @app.route('/question/<int:question_id>/add_tag', methods=['POST'])
@@ -129,8 +124,8 @@ def add_tag(question_id):
     comments = data_manager.get_comment_by_question_id(question_id)
     question_tags = data_manager.get_tags_by_question_id(question_id)
     all_tags = data_manager.get_tags()
-    return render_template('question.html', question_id=question_id, answers=answers, question=question, question_tags=question_tags, all_tags=all_tags, comments=comments)
-
+    return render_template('question.html', question_id=question_id, answers=answers, question=question,
+                           question_tags=question_tags, all_tags=all_tags, comments=comments)
 
 
 @app.route('/question/<int:question_id>/add_tag_to_question', methods=['POST'])
@@ -185,7 +180,8 @@ def add_question():
         filename = connection.add_file(fileitem)
         title = request.form['title']
         message = request.form['message']
-        question_id = data_manager.add_new_question(title, message, filename,session['id'])
+        data_manager.count_question(session['id'])
+        question_id = data_manager.add_new_question(title, message, filename, session['id'])
         return redirect(url_for('display_question', question_id=question_id['id']))
 
 
@@ -217,7 +213,8 @@ def add_answer(question_id):
         fileitem = request.files["filename"]
         filename = connection.add_file(fileitem)
         message = request.form['message']
-        question_id = data_manager.add_new_answer(question_id, message, filename,session['id'])
+        question_id = data_manager.add_new_answer(question_id, message, filename, session['id'])
+        data_manager.count_answers(session['id'])
         return redirect(url_for('display_question', question_id=question_id['question_id']))
 
 
@@ -232,6 +229,7 @@ def add_comment_to_question(question_id):
     elif request.method == 'POST':
         message = request.form['message']
         data_manager.add_comment_to_question(question_id, message, user_id=session['id'])
+        data_manager.count_comments(session['id'])
         return redirect(url_for('route_list'))
 
 
@@ -248,9 +246,10 @@ def add_comment_to_answer(answer_id):
                                comments=comments, question_id=question_id['question_id'])
     elif request.method == 'POST':
         message = request.form['message']
-        data_manager.add_comment_to_answer(answer_id, message,session['id'])
+        data_manager.add_comment_to_answer(answer_id, message, session['id'])
         question_id = data_manager.get_question_id_by_answer_id(answer_id)
         data_manager.delete_view(question_id['question_id'])
+        data_manager.count_comments(session['id'])
         return redirect(url_for('display_question', question_id=question_id['question_id']))
 
 
@@ -357,6 +356,7 @@ def users_list():
     users_container = data_manager.get_users_list()
     return render_template('user_list.html', user_list=users_container)
 
+
 @app.route('/users/<int:user_id>')
 def user_info(user_id):
     user = data_manager.get_user_by_user_id(user_id)
@@ -365,13 +365,32 @@ def user_info(user_id):
     comments = data_manager.get_comments_by_user_id(user_id)
     tags = data_manager.get_tags()
     profile_tag = data_manager.get_all_tags()
-    return render_template('profile.html', user=user,questions=questions,answers=answers,comments = comments,tags=tags,profile_tag=profile_tag)
+    print(user)
+    print(questions)
+    return render_template('profile.html', user=user, questions=questions, answers=answers, comments=comments,
+                           tags=tags, profile_tag=profile_tag)
+
+
 
 @app.route('/tags')
 def tag_list():
     tags = data_manager.get_tags_quantity_by_question()
 
     return render_template('tags.html', tags=tags)
+
+
+@app.route('/answer/<int:question_id>/<int:answer_id>/accept_answer', methods=['POST'])
+def accepted_answer(question_id, answer_id):
+    if session == {}:
+        return redirect(url_for('login'))
+
+    question = data_manager.get_question_by_id(question_id)
+    if question[0]['accepted_answer'] == answer_id:
+        data_manager.reset_accepted_answer(question_id)
+    else:
+        data_manager.accepted_answer(question_id, answer_id)
+
+    return redirect(url_for('display_question', question_id=question_id))
 
 
 if __name__ == "__main__":
