@@ -1,4 +1,3 @@
-from multiprocessing.connection import answer_challenge
 from operator import itemgetter
 from flask import Flask, render_template, request, redirect, url_for, session
 import data_manager
@@ -7,11 +6,6 @@ import bcrypt
 
 app = Flask(__name__)
 app.secret_key = 'somesecretkeythatonlyishouldknow'
-
-
-# @app.route('/')
-# def display_latest_questions():
-#     pass
 
 
 @app.route('/')
@@ -117,8 +111,8 @@ def display_question(question_id):
     comments = data_manager.get_comments()
     question_tags = data_manager.get_tags_by_question_id(question_id)
 
-    return render_template('question.html', question_id=question_id, answers=answers, question=question, question_tags=question_tags, comments=comments)
-
+    return render_template('question.html', question_id=question_id, answers=answers, question=question,
+                           question_tags=question_tags, comments=comments)
 
 
 @app.route('/question/<int:question_id>/add_tag', methods=['POST'])
@@ -130,8 +124,8 @@ def add_tag(question_id):
     comments = data_manager.get_comment_by_question_id(question_id)
     question_tags = data_manager.get_tags_by_question_id(question_id)
     all_tags = data_manager.get_tags()
-    return render_template('question.html', question_id=question_id, answers=answers, question=question, question_tags=question_tags, all_tags=all_tags, comments=comments)
-
+    return render_template('question.html', question_id=question_id, answers=answers, question=question,
+                           question_tags=question_tags, all_tags=all_tags, comments=comments)
 
 
 @app.route('/question/<int:question_id>/add_tag_to_question', methods=['POST'])
@@ -171,8 +165,7 @@ def add_vote_answer(answer_id):
 def add_dislike_answer(answer_id):
     if session == {}:
         return redirect(url_for('login'))
-    question_id = data_manager.add_like_answer(answer_id)
-    data_manager.dislike_answer(question_id['question_id'])
+    question_id = data_manager.dislike_answer(answer_id)
     return redirect(url_for("display_question", question_id=question_id['question_id'], answer_id=answer_id))
 
 
@@ -357,6 +350,7 @@ def users_list():
     users_container = data_manager.get_users_list()
     return render_template('user_list.html', user_list=users_container)
 
+
 @app.route('/users/<int:user_id>')
 def user_info(user_id):
     user = data_manager.get_user_by_user_id(user_id)
@@ -366,6 +360,7 @@ def user_info(user_id):
     tags = data_manager.get_tags()
     profile_tag = data_manager.get_all_tags()
     return render_template('profile.html', user=user,questions=questions,answers=answers,comments = comments,tags=tags,profile_tag=profile_tag)
+
 
 @app.route('/tags')
 def tag_list():

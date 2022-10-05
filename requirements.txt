@@ -12,5 +12,6 @@ pyparsing==3.0.9
 pytest==7.1.2
 tomli==2.0.1
 Werkzeug==2.2.2
-psycopg2==2.9.3
+psycopg2-binary==2.9.3
 six==1.15.0
+bcrypt~=4.0.0

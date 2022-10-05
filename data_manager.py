@@ -34,6 +34,7 @@ def get_questions_by_user_id(cursor,user_id):
     cursor.execute(query)
     return cursor.fetchall()
 
+
 @database_common.connection_handler
 def get_answers_by_user_id(cursor,user_id):
     query = f"""
@@ -43,6 +44,7 @@ def get_answers_by_user_id(cursor,user_id):
             """
     cursor.execute(query)
     return cursor.fetchall()
+
 
 @database_common.connection_handler
 def get_comments_by_user_id(cursor,user_id):
@@ -54,8 +56,9 @@ def get_comments_by_user_id(cursor,user_id):
     cursor.execute(query)
     return cursor.fetchall()
 
+
 @database_common.connection_handler
-def  get_comments(cursor):
+def get_comments(cursor):
     query = """
                 SELECT comment.*,users.username as user
                 FROM comment
@@ -88,7 +91,6 @@ def get_answer_data(cursor):
             """
     cursor.execute(query)
     return cursor.fetchall()
-
 
 @database_common.connection_handler
 def get_comment_by_question_id(cursor, question_id):
@@ -160,6 +162,7 @@ def get_tags(cursor):
             """
     cursor.execute(query)
     return cursor.fetchall()
+
 
 @database_common.connection_handler
 def get_all_tags(cursor):
@@ -236,10 +239,12 @@ def add_like_answer(cursor, id):
 def dislike_answer(cursor, answer_id):
     query = f"""
             UPDATE answer
-            SET dislike = dislike + 1 ,view_number = view_number - 1
+            SET dislike = dislike + 1
             WHERE id = {answer_id}
+            RETURNING question_id
             """
     cursor.execute(query)
+    return cursor.fetchone()
 
 
 @database_common.connection_handler
@@ -408,6 +413,7 @@ def del_tag(cursor, question_id):
             """
     cursor.execute(query)
 
+
 @database_common.connection_handler
 def del_tag_from_question(cursor, question_id, tag_id):
 
@@ -501,8 +507,9 @@ def add_tag_to_question(cursor, question_id, tag):
             """
         cursor.execute(query)
 
+
 @database_common.connection_handler
-def delete_view(cursor,question_id):
+def delete_view(cursor, question_id):
     query = f"""
                 UPDATE question
                 SET view_number = view_number - 1
@@ -518,6 +525,8 @@ def get_users(cursor):
             """
     cursor.execute(query)
     return cursor.fetchall()
+
+
 @database_common.connection_handler
 def get_user_by_user_id(cursor,user_id):
     query = f"""
@@ -526,6 +535,7 @@ def get_user_by_user_id(cursor,user_id):
             """
     cursor.execute(query)
     return cursor.fetchone()
+
 
 @database_common.connection_handler
 def create_account(cursor,username,password):
@@ -536,6 +546,7 @@ def create_account(cursor,username,password):
         """
     cursor.execute(query)
 
+
 @database_common.connection_handler
 def get_users_list(cursor):
     query = f"""
@@ -545,6 +556,8 @@ def get_users_list(cursor):
     """
     cursor.execute(query)
     return cursor.fetchall()
+
+
 @database_common.connection_handler
 def get_user_id_by_username(cursor,username):
     query = f"""
@@ -592,6 +605,7 @@ def check_tag_in_question(question_id, tag):
             return False
     return True
 
+
 def try_login(username,password):
     users = get_users()
     for user in users:
@@ -626,6 +640,7 @@ def get_tags_quantity_by_question(cursor):
     cursor.execute(query)
     return cursor.fetchall()
 
+
 def check_is_username(username):
     users = get_users()
     for user in users:
@@ -633,9 +648,11 @@ def check_is_username(username):
             return False
     return True
 
+
 def hash_password(plain_text_password):
     hashed_bytes = bcrypt.hashpw(plain_text_password.encode('utf-8'), bcrypt.gensalt())
     return hashed_bytes.decode('utf-8')
+
 
 def verify_password(plain_text_password, hashed_password):
     hashed_bytes_password = hashed_password.encode('utf-8')
