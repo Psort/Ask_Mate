@@ -181,6 +181,7 @@ def add_question():
         filename = connection.add_file(fileitem)
         title = request.form['title']
         message = request.form['message']
+        data_manager.count_question(session['id'])
         question_id = data_manager.add_new_question(title, message, filename, session['id'])
         return redirect(url_for('display_question', question_id=question_id['id']))
 
@@ -214,6 +215,7 @@ def add_answer(question_id):
         filename = connection.add_file(fileitem)
         message = request.form['message']
         question_id = data_manager.add_new_answer(question_id, message, filename, session['id'])
+        data_manager.count_answers(session['id'])
         return redirect(url_for('display_question', question_id=question_id['question_id']))
 
 
@@ -228,6 +230,7 @@ def add_comment_to_question(question_id):
     elif request.method == 'POST':
         message = request.form['message']
         data_manager.add_comment_to_question(question_id, message, user_id=session['id'])
+        data_manager.count_comments(session['id'])
         return redirect(url_for('route_list'))
 
 
@@ -247,6 +250,7 @@ def add_comment_to_answer(answer_id):
         data_manager.add_comment_to_answer(answer_id, message, session['id'])
         question_id = data_manager.get_question_id_by_answer_id(answer_id)
         data_manager.delete_view(question_id['question_id'])
+        data_manager.count_comments(session['id'])
         return redirect(url_for('display_question', question_id=question_id['question_id']))
 
 
@@ -360,6 +364,8 @@ def user_info(user_id):
     comments = data_manager.get_comments_by_user_id(user_id)
     tags = data_manager.get_tags()
     profile_tag = data_manager.get_all_tags()
+    print(user)
+    print(questions)
     return render_template('profile.html', user=user, questions=questions, answers=answers, comments=comments,
                            tags=tags, profile_tag=profile_tag)
 

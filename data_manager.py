@@ -640,6 +640,32 @@ def get_tags_quantity_by_question(cursor):
     cursor.execute(query)
     return cursor.fetchall()
 
+@database_common.connection_handler
+def count_question(cursor, user_id):
+    query = f"""
+        UPDATE users
+        SET num_asked_question = num_asked_question + 1
+        WHERE users.id = {user_id}
+    """
+    cursor.execute(query)
+
+@database_common.connection_handler
+def count_answers(cursor, user_id):
+    query = f"""
+        UPDATE users
+        SET num_answer = users.num_answer + 1
+        WHERE users.id = {user_id}
+    """
+    cursor.execute(query)
+
+@database_common.connection_handler
+def count_comments(cursor, user_id):
+    query = f"""
+        UPDATE users
+        SET num_comment = users.num_comment + 1
+        WHERE users.id = {user_id}
+    """
+    cursor.execute(query)
 
 def check_is_username(username):
     users = get_users()
