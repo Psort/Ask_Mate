@@ -56,7 +56,8 @@ def profile():
     comments = data_manager.get_comments_by_user_id(session['id'])
     tags = data_manager.get_tags()
     profile_tag = data_manager.get_all_tags()
-    return render_template('profile.html', user=user,questions=questions,answers=answers,comments = comments,tags=tags,profile_tag=profile_tag)
+    return render_template('profile.html', user=user, questions=questions, answers=answers, comments=comments,
+                           tags=tags, profile_tag=profile_tag)
 
 
 @app.route('/Sign_up', methods=['GET', 'POST'])
@@ -117,8 +118,8 @@ def display_question(question_id):
     comments = data_manager.get_comments()
     question_tags = data_manager.get_tags_by_question_id(question_id)
 
-    return render_template('question.html', question_id=question_id, answers=answers, question=question, question_tags=question_tags, comments=comments)
-
+    return render_template('question.html', question_id=question_id, answers=answers, question=question,
+                           question_tags=question_tags, comments=comments)
 
 
 @app.route('/question/<int:question_id>/add_tag', methods=['POST'])
@@ -130,8 +131,8 @@ def add_tag(question_id):
     comments = data_manager.get_comment_by_question_id(question_id)
     question_tags = data_manager.get_tags_by_question_id(question_id)
     all_tags = data_manager.get_tags()
-    return render_template('question.html', question_id=question_id, answers=answers, question=question, question_tags=question_tags, all_tags=all_tags, comments=comments)
-
+    return render_template('question.html', question_id=question_id, answers=answers, question=question,
+                           question_tags=question_tags, all_tags=all_tags, comments=comments)
 
 
 @app.route('/question/<int:question_id>/add_tag_to_question', methods=['POST'])
@@ -187,7 +188,7 @@ def add_question():
         filename = connection.add_file(fileitem)
         title = request.form['title']
         message = request.form['message']
-        question_id = data_manager.add_new_question(title, message, filename,session['id'])
+        question_id = data_manager.add_new_question(title, message, filename, session['id'])
         return redirect(url_for('display_question', question_id=question_id['id']))
 
 
@@ -219,7 +220,7 @@ def add_answer(question_id):
         fileitem = request.files["filename"]
         filename = connection.add_file(fileitem)
         message = request.form['message']
-        question_id = data_manager.add_new_answer(question_id, message, filename,session['id'])
+        question_id = data_manager.add_new_answer(question_id, message, filename, session['id'])
         return redirect(url_for('display_question', question_id=question_id['question_id']))
 
 
@@ -250,7 +251,7 @@ def add_comment_to_answer(answer_id):
                                comments=comments, question_id=question_id['question_id'])
     elif request.method == 'POST':
         message = request.form['message']
-        data_manager.add_comment_to_answer(answer_id, message,session['id'])
+        data_manager.add_comment_to_answer(answer_id, message, session['id'])
         question_id = data_manager.get_question_id_by_answer_id(answer_id)
         data_manager.delete_view(question_id['question_id'])
         return redirect(url_for('display_question', question_id=question_id['question_id']))
@@ -357,6 +358,7 @@ def users_list():
     users_container = data_manager.get_users_list()
     return render_template('user_list.html', user_list=users_container)
 
+
 @app.route('/users/<int:user_id>')
 def user_info(user_id):
     user = data_manager.get_user_by_user_id(user_id)
@@ -365,7 +367,9 @@ def user_info(user_id):
     comments = data_manager.get_comments_by_user_id(user_id)
     tags = data_manager.get_tags()
     profile_tag = data_manager.get_all_tags()
-    return render_template('profile.html', user=user,questions=questions,answers=answers,comments = comments,tags=tags,profile_tag=profile_tag)
+    return render_template('profile.html', user=user, questions=questions, answers=answers, comments=comments,
+                           tags=tags, profile_tag=profile_tag)
+
 
 @app.route('/tags')
 def tag_list():
