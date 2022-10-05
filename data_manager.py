@@ -92,6 +92,7 @@ def get_answer_data(cursor):
     cursor.execute(query)
     return cursor.fetchall()
 
+
 @database_common.connection_handler
 def get_comment_by_question_id(cursor, question_id):
     query = f"""
@@ -162,7 +163,6 @@ def get_tags(cursor):
             """
     cursor.execute(query)
     return cursor.fetchall()
-
 
 @database_common.connection_handler
 def get_all_tags(cursor):
@@ -413,7 +413,6 @@ def del_tag(cursor, question_id):
             """
     cursor.execute(query)
 
-
 @database_common.connection_handler
 def del_tag_from_question(cursor, question_id, tag_id):
 
@@ -507,9 +506,8 @@ def add_tag_to_question(cursor, question_id, tag):
             """
         cursor.execute(query)
 
-
 @database_common.connection_handler
-def delete_view(cursor, question_id):
+def delete_view(cursor,question_id):
     query = f"""
                 UPDATE question
                 SET view_number = view_number - 1
