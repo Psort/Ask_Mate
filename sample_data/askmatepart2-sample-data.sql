@@ -154,4 +154,4 @@ INSERT INTO question_tag VALUES (0, 1);
 INSERT INTO question_tag VALUES (1, 3);
 INSERT INTO question_tag VALUES (2, 3);
 
-ALTER TABLE answer ADD COLUMN accepted_answer BOOLEAN DEFAULT FALSE;
+ALTER TABLE question ADD COLUMN accepted_answer integer;
