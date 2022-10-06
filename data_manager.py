@@ -217,12 +217,12 @@ def add_like_question(cursor, question_id):
     cursor.execute(query)
     return cursor.fetchone()
 @database_common.connection_handler
-def get_user_id_by_question_id(cursor,question_id):
-    print(question_id)
+def get_user_id_by_answer_id(cursor,answer_id):
+
     query = f"""
             SELECT user_id
-            FROM question
-            WHERE id = {question_id}
+            FROM answer
+            WHERE id = {answer_id}
         """
     cursor.execute(query)
     return cursor.fetchone()

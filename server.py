@@ -49,6 +49,7 @@ def profile():
     comments = data_manager.get_comments_by_user_id(session['id'])
     tags = data_manager.get_tags()
     profile_tag = data_manager.get_all_tags()
+    print(session['id'])
     notifications = data_manager.get_notifications_by_user_id(session['id'])
     return render_template('profile.html', user=user, questions=questions, answers=answers, comments=comments,
                            tags=tags, profile_tag=profile_tag,notifications = notifications)
@@ -163,7 +164,8 @@ def add_vote_answer(answer_id):
     question_id = data_manager.add_like_answer(answer_id)
     data_manager.add_reputation(question_id['user_id'], '+10')
     data_manager.delete_view(question_id['question_id'])
-    data_manager.create_notifications(question_id['user_id'],'new Like to Answer',question_id['question_id'],answer_id)
+    user_id = data_manager.get_user_id_by_answer_id(answer_id)
+    data_manager.create_notifications(user_id['user_id'],'new Like to Answer',question_id['question_id'],answer_id)
     return redirect(url_for("display_question", question_id=question_id['question_id'], answer_id=answer_id))
 
 
@@ -174,7 +176,8 @@ def add_dislike_answer(answer_id):
     question_id = data_manager.dislike_answer(answer_id)
     data_manager.add_reputation(question_id['user_id'], '-2')
     data_manager.delete_view(question_id['question_id'])
-    data_manager.create_notifications(question_id['user_id'],'new Dislike to Answer',question_id['question_id'],answer_id)
+    user_id = data_manager.get_user_id_by_answer_id(answer_id)
+    data_manager.create_notifications(user_id['user_id'],'new Dislike to Answer',question_id['question_id'],answer_id)
     return redirect(url_for("display_question", question_id=question_id['question_id'], answer_id=answer_id))
 
 
@@ -260,7 +263,7 @@ def add_comment_to_answer(answer_id):
         data_manager.add_comment_to_answer(answer_id, message, session['id'])
         question_id = data_manager.get_question_id_by_answer_id(answer_id)
         data_manager.delete_view(question_id['question_id'])
-        user_id = data_manager.get_user_id_by_question_id(question_id['question_id'])
+        user_id = data_manager.get_user_id_by_answer_id(answer_id['question_id'])
         data_manager.count_comments(session['id'])
         data_manager.create_notifications(user_id['id'],'new Comment to Answer',question_id['question_id'],answer_id)
         return redirect(url_for('display_question', question_id=question_id['question_id']))
