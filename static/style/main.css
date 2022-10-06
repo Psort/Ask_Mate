@@ -975,6 +975,17 @@ h3
 {
 	color:	#39a5f1;
 }
+
+.tag_list button
+{
+	background-color: #1c74b2;
+	color: #efefef;
+	height: 56px;
+	font-size: 19px;
+	text-decoration: none;
+	border-radius: 5px;
+	width: 200px;
+
 h1
 {
 	color: white;
