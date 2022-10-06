@@ -277,6 +277,8 @@ def edit_answer(answer_id):
 def del_question(question_id):
     if session == {}:
         return redirect(url_for('login'))
+    user_id = data_manager.get_user_id_by_question_id(question_id)
+    data_manager.del_question_count(user_id['id'])
     data_manager.del_question(question_id)
     return redirect(url_for('route_list'))
 
@@ -294,6 +296,8 @@ def del_tag_from_question(question_id, tag_id):
 def del_answer(answer_id):
     if session == {}:
         return redirect(url_for('login'))
+    user_id = data_manager.get_user_id_by_answer_id(answer_id)
+    data_manager.del_answer_count(user_id['id'])
     question_id = data_manager.del_answer(answer_id)
     data_manager.delete_view(question_id['question_id'])
     return redirect(url_for('display_question', question_id=question_id['question_id']))
@@ -303,6 +307,8 @@ def del_answer(answer_id):
 def del_comment(comment_id):
     if session == {}:
         return redirect(url_for('login'))
+    user_id = data_manager.get_user_id_by_comment_id(comment_id)
+    data_manager.del_comment_count(user_id['id'])
     question_id = data_manager.del_comment(False, False, comment_id)
     data_manager.delete_view(question_id['question_id'])
     return redirect(url_for('route_list'))
@@ -312,6 +318,8 @@ def del_comment(comment_id):
 def del_comment_to_answers(comment_id, question_id):
     if session == {}:
         return redirect(url_for('login'))
+    user_id = data_manager.get_user_id_by_comment_id(comment_id)
+    data_manager.del_comment_count(user_id['id'])
     data_manager.del_comment(False, False, comment_id)
     return redirect(url_for('display_question', question_id=question_id))
 
@@ -320,7 +328,6 @@ def del_comment_to_answers(comment_id, question_id):
 def search():
     search_item = request.form['search']
     questions = data_manager.search_question(search_item)
-    print(questions)
     if questions == []:
         questions = data_manager.search_answers(search_item)
         
@@ -370,8 +377,6 @@ def user_info(user_id):
     comments = data_manager.get_comments_by_user_id(user_id)
     tags = data_manager.get_tags()
     profile_tag = data_manager.get_all_tags()
-    print(user)
-    print(questions)
     return render_template('profile.html', user=user, questions=questions, answers=answers, comments=comments,
                            tags=tags, profile_tag=profile_tag)
 
