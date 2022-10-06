@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ask Mate</title>
+</head>
+<body>
+    <header>
+        <center><h1>Ask Mate</h1></center>
+        <center><img src="kto_pyta_nie_błądzi.jpg" alt="askmate" width="100" height="100"></center>
+    </header>
+    <div>
+        <table>
+            <tr>
+                {% for question in questions %}
+                    <center>
+                        <h1>{{ question['title'] }}</h1>
+                        <p>{{ question['message'] }}</p>
+                    </center>
+                {% endfor %}
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
