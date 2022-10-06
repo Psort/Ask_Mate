@@ -262,7 +262,7 @@ def add_comment_to_answer(answer_id):
         data_manager.delete_view(question_id['question_id'])
         user_id = data_manager.get_user_id_by_question_id(question_id['question_id'])
         data_manager.count_comments(session['id'])
-        data_manager.create_notifications(user_id['user_id'],'new Comment to Answer',question_id['question_id'],answer_id)
+        data_manager.create_notifications(user_id['id'],'new Comment to Answer',question_id['question_id'],answer_id)
         return redirect(url_for('display_question', question_id=question_id['question_id']))
 
 
