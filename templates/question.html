@@ -161,7 +161,7 @@
                 {% for answer in answers %}
                 <div class="answer">
                     <div class="comment_heading">
-                        <div class="comment_user">
+                        <div class="accept_user">
 
                         {% if answer['id'] == question[0]['accepted_answer'] or session['id'] == question[0]['user_id'] %}
                             {% if session['id'] != question[0]['user_id'] %}

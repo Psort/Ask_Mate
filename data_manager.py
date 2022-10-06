@@ -210,9 +210,34 @@ def add_like_question(cursor, question_id):
     query = f"""
                 UPDATE question
                 SET vote_number = vote_number + 1 ,view_number = view_number - 1
+                WHERE id = {question_id};
+                SELECT user_id FROM question
                 WHERE id = {question_id}
             """
     cursor.execute(query)
+    return cursor.fetchone()
+
+
+@database_common.connection_handler
+def add_reputation(cursor, user_id, num_of_reputation):
+    query = f"""
+                UPDATE users
+                SET reputation = reputation + {num_of_reputation}
+                WHERE id = {user_id}
+            """
+    cursor.execute(query)
+
+
+# @database_common.connection_handler
+# def add_reputation_for_voteup(cursor, question_id, user_id, points):
+#     query = f"""
+#                 UPDATE users
+#                 SET users.reputation = users.reputation + {points}
+#                 INNER JOIN question
+#                 ON question.user_id = users.id
+#                 WHERE users.id = {user_id}
+#             """
+#     cursor.execute(query)
 
 
 @database_common.connection_handler
@@ -220,19 +245,12 @@ def dislike_question(cursor, question_id):
     query = f"""
                 UPDATE question
                 SET dislike = dislike + 1 ,view_number = view_number - 1
+                WHERE id = {question_id};
+                SELECT user_id FROM question
                 WHERE id = {question_id}
     """
     cursor.execute(query)
-
-
-@database_common.connection_handler
-def add_like_answer(cursor, id):
-    query = f"""
-            UPDATE answer
-            SET vote_number = vote_number + 1
-            WHERE id = {id}
-            """
-    cursor.execute(query)
+    return cursor.fetchone()
 
 
 @database_common.connection_handler
@@ -240,8 +258,8 @@ def dislike_answer(cursor, answer_id):
     query = f"""
             UPDATE answer
             SET dislike = dislike + 1
-            WHERE id = {answer_id}
-            RETURNING question_id
+            WHERE id = {answer_id};
+            SELECT question_id, user_id FROM answer WHERE id = {answer_id}
             """
     cursor.execute(query)
     return cursor.fetchone()
@@ -262,8 +280,7 @@ def add_like_answer(cursor, answer_id):
                 UPDATE answer
                 SET vote_number = vote_number + 1
                 WHERE id = {answer_id};
-                SELECT question_id FROM answer WHERE id = {answer_id}
---                 RETURNING question_id
+                SELECT question_id, user_id FROM answer WHERE id = {answer_id}  
             """
     cursor.execute(query)
     return cursor.fetchone()
@@ -438,7 +455,7 @@ def del_comment_by_question_id(cursor, question_id):
 def search_question(cursor, search_item):
 
     query = f"""
-                SELECT *,users.username as user
+                SELECT question.*,users.username as user
                 FROM question
                 INNER JOIN users on users.id = question.user_id 
                 WHERE title LIKE '%{search_item}%'
@@ -465,7 +482,7 @@ def search_answers(cursor, search_item):
 @database_common.connection_handler
 def get_comment_by_id(cursor, comment_id):
     query = f"""
-                SELECT *,users.username as user
+                SELECT comment.*,users.username as user
                 FROM comment
                 INNER JOIN users on users.id = comment.user_id
                 WHERE comment.id= {comment_id}
@@ -570,25 +587,32 @@ def get_user_id_by_username(cursor,username):
     return cursor.fetchone()
 
 
-
 @database_common.connection_handler
 def accepted_answer(cursor, question_id, answer_id):
     query = f"""
                 UPDATE question
                 SET accepted_answer = {answer_id}
-                WHERE id = {question_id}
+                WHERE id = {question_id};
+                SELECT user_id 
+                FROM answer
+                WHERE id = {answer_id}
         """
     cursor.execute(query)
+    return cursor.fetchone()
 
 
 @database_common.connection_handler
-def reset_accepted_answer(cursor, question_id):
+def reset_accepted_answer(cursor, question_id, answer_id):
     query = f"""
                 UPDATE question
                 SET accepted_answer = Null
-                WHERE id = {question_id}
+                WHERE id = {question_id};
+                SELECT user_id 
+                FROM answer
+                WHERE id = {answer_id}
         """
     cursor.execute(query)
+    return cursor.fetchone()
 
 def is_tag_in_tags(tag):
     tags = get_tags()
@@ -610,8 +634,7 @@ def try_login(username,password):
     users = get_users()
     for user in users:
         if username == user['username']:
-            if password == user['password']:
-                return True
+                return verify_password(password,user['password'])
     return False
 
 
@@ -663,6 +686,68 @@ def count_comments(cursor, user_id):
     query = f"""
         UPDATE users
         SET num_comment = users.num_comment + 1
+        WHERE users.id = {user_id}
+    """
+    cursor.execute(query)
+
+@database_common.connection_handler
+def get_user_id_by_question_id(cursor, question_id):
+    query = f"""
+        SELECT us.id
+        FROM users as us
+        JOIN question as q ON q.user_id = us.id
+        WHERE q.id = {question_id}
+    """
+    cursor.execute(query)
+    return cursor.fetchone()
+
+@database_common.connection_handler
+def get_user_id_by_answer_id(cursor, answer_id):
+    query = f"""
+        SELECT us.id
+        FROM users as us
+        JOIN answer as an ON an.user_id = us.id
+        WHERE an.id = {answer_id}
+    """
+    cursor.execute(query)
+    return cursor.fetchone()
+
+@database_common.connection_handler
+def get_user_id_by_comment_id(cursor, comment_id):
+    query = f"""
+        SELECT us.id
+        FROM users as us
+        JOIN comment as com ON com.user_id = us.id
+        WHERE com.id = {comment_id}
+    """
+    cursor.execute(query)
+    return cursor.fetchone()
+
+
+@database_common.connection_handler
+def del_answer_count(cursor, user_id):
+    query = f"""
+        UPDATE users
+        SET num_answer = users.num_answer - 1   
+        WHERE users.id = {user_id}
+    """
+    cursor.execute(query)
+
+@database_common.connection_handler
+def del_comment_count(cursor, user_id):
+    query = f"""
+        UPDATE users
+        SET num_comment = users.num_comment - 1   
+        WHERE users.id = {user_id}
+    """
+    cursor.execute(query)
+
+
+@database_common.connection_handler
+def del_question_count(cursor, user_id):
+    query = f"""
+        UPDATE users
+        SET num_asked_question = users.num_asked_question - 1   
         WHERE users.id = {user_id}
     """
     cursor.execute(query)

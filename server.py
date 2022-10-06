@@ -21,7 +21,7 @@ def route_list():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    error_message = "this acount dont exist"
+    error_message = "Wrong login or password"
     if session != {}:
         return redirect(url_for('profile'))
     else:
@@ -30,8 +30,7 @@ def login():
 
             username = request.form['username']
             password = request.form['password']
-
-            if data_manager.try_login(username, password):
+            if data_manager.try_login(username,password):
                 session['username'] = username
                 session['id'] = data_manager.get_user_id_by_username(username)[
                     'id']
@@ -64,13 +63,14 @@ def Sign_up():
             session.pop('user_id', None)
 
             username = request.form['username']
-            password = request.form['password']
-            if  data_manager.check_is_username(username):
-                data_manager.create_account(username,password)
+            password = data_manager.hash_password(request.form['password'])
+            if data_manager.check_is_username(username):
+                data_manager.create_account(username, password)
                 session['username'] = username
-                session['id'] = data_manager.get_user_by_username(username)['id']
+                session['id'] = data_manager.get_user_id_by_username(username)[
+                    'id']
                 return redirect(url_for('profile'))
-            return render_template('Sign_up.html',error_message = error_message)
+            return render_template('Sign_up.html', error_message=error_message)
         return render_template('Sign_up.html')
 
 
@@ -86,8 +86,8 @@ def question_list():
     order_direction = request.args.get('order_direction', 'asc')
     questions = data_manager.get_question_data()
     comments = data_manager.get_comments()
-    #tags = data_manager.get_tags()
-    #profile_tag = data_manager.get_all_tags()
+    tags = data_manager.get_tags()
+    profile_tag = data_manager.get_all_tags()
     sorted_questions = sorted(questions, key=itemgetter(
         order_by), reverse=order_direction == 'desc')
 
@@ -140,7 +140,8 @@ def add_tag_to_question(question_id):
 def add_vote_question(question_id):
     if session == {}:
         return redirect(url_for('login'))
-    data_manager.add_like_question(question_id)
+    user_id = data_manager.add_like_question(question_id)
+    data_manager.add_reputation(user_id['user_id'], '+5')
     return redirect(url_for("display_question", question_id=question_id))
 
 
@@ -148,7 +149,8 @@ def add_vote_question(question_id):
 def add_dislike_question(question_id):
     if session == {}:
         return redirect(url_for('login'))
-    data_manager.dislike_question(question_id)
+    user_id = data_manager.dislike_question(question_id)
+    data_manager.add_reputation(user_id['user_id'], '-2')
     return redirect(url_for("display_question", question_id=question_id))
 
 
@@ -157,7 +159,8 @@ def add_vote_answer(answer_id):
     if session == {}:
         return redirect(url_for('login'))
     question_id = data_manager.add_like_answer(answer_id)
-    data_manager.delte_vote(question_id['question_id'])
+    data_manager.add_reputation(question_id['user_id'], '+10')
+    data_manager.delete_view(question_id['question_id'])
     return redirect(url_for("display_question", question_id=question_id['question_id'], answer_id=answer_id))
 
 
@@ -166,6 +169,8 @@ def add_dislike_answer(answer_id):
     if session == {}:
         return redirect(url_for('login'))
     question_id = data_manager.dislike_answer(answer_id)
+    data_manager.add_reputation(question_id['user_id'], '-2')
+    data_manager.delete_view(question_id['question_id'])
     return redirect(url_for("display_question", question_id=question_id['question_id'], answer_id=answer_id))
 
 
@@ -272,6 +277,8 @@ def edit_answer(answer_id):
 def del_question(question_id):
     if session == {}:
         return redirect(url_for('login'))
+    user_id = data_manager.get_user_id_by_question_id(question_id)
+    data_manager.del_question_count(user_id['id'])
     data_manager.del_question(question_id)
     return redirect(url_for('route_list'))
 
@@ -289,6 +296,8 @@ def del_tag_from_question(question_id, tag_id):
 def del_answer(answer_id):
     if session == {}:
         return redirect(url_for('login'))
+    user_id = data_manager.get_user_id_by_answer_id(answer_id)
+    data_manager.del_answer_count(user_id['id'])
     question_id = data_manager.del_answer(answer_id)
     data_manager.delete_view(question_id['question_id'])
     return redirect(url_for('display_question', question_id=question_id['question_id']))
@@ -298,6 +307,8 @@ def del_answer(answer_id):
 def del_comment(comment_id):
     if session == {}:
         return redirect(url_for('login'))
+    user_id = data_manager.get_user_id_by_comment_id(comment_id)
+    data_manager.del_comment_count(user_id['id'])
     question_id = data_manager.del_comment(False, False, comment_id)
     data_manager.delete_view(question_id['question_id'])
     return redirect(url_for('route_list'))
@@ -307,6 +318,8 @@ def del_comment(comment_id):
 def del_comment_to_answers(comment_id, question_id):
     if session == {}:
         return redirect(url_for('login'))
+    user_id = data_manager.get_user_id_by_comment_id(comment_id)
+    data_manager.del_comment_count(user_id['id'])
     data_manager.del_comment(False, False, comment_id)
     return redirect(url_for('display_question', question_id=question_id))
 
@@ -317,6 +330,7 @@ def search():
     questions = data_manager.search_question(search_item)
     if questions == []:
         questions = data_manager.search_answers(search_item)
+
         return render_template('list.html', headers=data_manager.SORT_QUESTION_HEADERS, posts=questions)
     else:
         return render_template('list.html', headers=data_manager.SORT_QUESTION_HEADERS, posts=questions)
@@ -363,8 +377,6 @@ def user_info(user_id):
     comments = data_manager.get_comments_by_user_id(user_id)
     tags = data_manager.get_tags()
     profile_tag = data_manager.get_all_tags()
-    print(user)
-    print(questions)
     return render_template('profile.html', user=user, questions=questions, answers=answers, comments=comments,
                            tags=tags, profile_tag=profile_tag)
 
@@ -384,9 +396,11 @@ def accepted_answer(question_id, answer_id):
 
     question = data_manager.get_question_by_id(question_id)
     if question[0]['accepted_answer'] == answer_id:
-        data_manager.reset_accepted_answer(question_id)
+        user_id = data_manager.reset_accepted_answer(question_id, answer_id)
+        data_manager.add_reputation(user_id['user_id'], '-15')
     else:
-        data_manager.accepted_answer(question_id, answer_id)
+        user_id = data_manager.accepted_answer(question_id, answer_id)
+        data_manager.add_reputation(user_id['user_id'], '+15')
 
     return redirect(url_for('display_question', question_id=question_id))
 
