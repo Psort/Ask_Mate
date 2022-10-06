@@ -216,6 +216,16 @@ def add_like_question(cursor, question_id):
             """
     cursor.execute(query)
     return cursor.fetchone()
+@database_common.connection_handler
+def get_user_id_by_question_id(cursor,question_id):
+    print(question_id)
+    query = f"""
+            SELECT user_id
+            FROM question
+            WHERE id = {question_id}
+        """
+    cursor.execute(query)
+    return cursor.fetchone()
 
 
 @database_common.connection_handler
@@ -307,8 +317,9 @@ def add_new_answer(cursor, question_id, message, image,user_id):
         image = f"'{image}'"
     query = f"""
                 INSERT INTO answer (user_id,submission_time, vote_number, question_id, message, image, dislike)
-                VALUES ({user_id},'{submission_time}', 0, {question_id}, '{message}', {image}, 0) 
-                RETURNING question_id
+                VALUES ({user_id},'{submission_time}', 0, {question_id}, '{message}', {image}, 0);
+                SELECT id,user_id from question
+                WHERE id = {question_id}
         """
     cursor.execute(query)
     return cursor.fetchone()
@@ -320,8 +331,9 @@ def add_comment_to_question(cursor, question_id, message,user_id):
 
     query = f"""
                     INSERT INTO comment (user_id,question_id, answer_id, message, submission_time, edited_count)
-                    VALUES ('{user_id}',{question_id}, NULL, '{message}', '{submission_time}', 0) 
-                    RETURNING question_id
+                    VALUES ('{user_id}',{question_id}, NULL, '{message}', '{submission_time}', 0);
+                    SELECT user_id from question
+                    WHERE id = {question_id}
             """
     cursor.execute(query)
     return cursor.fetchone()
@@ -553,6 +565,23 @@ def get_user_by_user_id(cursor,user_id):
 
 
 @database_common.connection_handler
+def get_notifications_by_user_id(cursor,user_id):
+    query = f"""
+            SELECT * from notifications
+            WHERE user_id = {user_id}
+        """
+    cursor.execute(query)
+    return cursor.fetchall()
+
+@database_common.connection_handler
+def delete_notification(cursor,id):
+    query = f"""
+            DELETE FROM notifications
+            WHERE id = {id};
+        """
+    cursor.execute(query)
+
+@database_common.connection_handler
 def create_account(cursor,username,password):
     registration_date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     query = f"""
@@ -560,6 +589,15 @@ def create_account(cursor,username,password):
             VALUES ('{username}', '{password}', '{registration_date}',0, 0, 0, 0);
         """
     cursor.execute(query)
+
+@database_common.connection_handler
+def create_notifications(cursor,user_id,text,question_id,answer_id = "NULL"):
+    query = f"""
+            INSERT INTO notifications (user_id,notification_text,question_id,answer_id)
+            VALUES ({user_id},'{text}',{question_id},{answer_id});
+        """
+    cursor.execute(query)
+
 
 
 @database_common.connection_handler
