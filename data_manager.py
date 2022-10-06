@@ -587,7 +587,6 @@ def get_user_id_by_username(cursor,username):
     return cursor.fetchone()
 
 
-
 @database_common.connection_handler
 def accepted_answer(cursor, question_id, answer_id):
     query = f"""
@@ -687,6 +686,68 @@ def count_comments(cursor, user_id):
     query = f"""
         UPDATE users
         SET num_comment = users.num_comment + 1
+        WHERE users.id = {user_id}
+    """
+    cursor.execute(query)
+
+@database_common.connection_handler
+def get_user_id_by_question_id(cursor, question_id):
+    query = f"""
+        SELECT us.id
+        FROM users as us
+        JOIN question as q ON q.user_id = us.id
+        WHERE q.id = {question_id}
+    """
+    cursor.execute(query)
+    return cursor.fetchone()
+
+@database_common.connection_handler
+def get_user_id_by_answer_id(cursor, answer_id):
+    query = f"""
+        SELECT us.id
+        FROM users as us
+        JOIN answer as an ON an.user_id = us.id
+        WHERE an.id = {answer_id}
+    """
+    cursor.execute(query)
+    return cursor.fetchone()
+
+@database_common.connection_handler
+def get_user_id_by_comment_id(cursor, comment_id):
+    query = f"""
+        SELECT us.id
+        FROM users as us
+        JOIN comment as com ON com.user_id = us.id
+        WHERE com.id = {comment_id}
+    """
+    cursor.execute(query)
+    return cursor.fetchone()
+
+
+@database_common.connection_handler
+def del_answer_count(cursor, user_id):
+    query = f"""
+        UPDATE users
+        SET num_answer = users.num_answer - 1   
+        WHERE users.id = {user_id}
+    """
+    cursor.execute(query)
+
+@database_common.connection_handler
+def del_comment_count(cursor, user_id):
+    query = f"""
+        UPDATE users
+        SET num_comment = users.num_comment - 1   
+        WHERE users.id = {user_id}
+    """
+    cursor.execute(query)
+
+
+@database_common.connection_handler
+def del_question_count(cursor, user_id):
+    query = f"""
+        UPDATE users
+        SET num_asked_question = users.num_asked_question - 1   
         WHERE users.id = {user_id}
     """
     cursor.execute(query)
