@@ -162,16 +162,21 @@
                 <div class="answer">
                     <div class="comment_heading">
                         <div class="accept_user">
-
-                        {% if answer['id'] == question[0]['accepted_answer'] or session['id'] == question[0]['user_id'] %}
                             {% if session['id'] != question[0]['user_id'] %}
+                                {% if answer['id'] == question[0]['accepted_answer'] or session['id'] == question[0]['user_id'] %}
                                 <button class="accepted-answer"><i class="fa fa-check " aria-hidden="true"></i></button>
+                                {%endif%}
                             {% else %}
                                 <form action="{{ url_for('accepted_answer', question_id=question[0]['id'], answer_id=answer.id) }}" method="post">
                                     <button class="not-accepted-answer {{'accepted-answer' if answer['id'] == question[0]['accepted_answer']  }}"><i class="fa fa-check " aria-hidden="true"></i></button>
                                 </form>
                             {%endif%}
-                            {{answer.user}}:</div>
+                            
+                        </div>
+                        <div class="profile_users">
+                            {{answer.user}}:
+                        </div>
+                            
                         <div class="answer_times"><h6>Edited {{ answer.submission_time }} times</h6></div>
                     </div>
                     <div class="coment_main">
@@ -182,7 +187,7 @@
                         </div>
                     </div>
                     <div class="entryimg">
-                        {% if answer['image'] != None %}
+                    {% if answer['image'] != None %}
                     <img src="{{url_for('static',filename='photo/'+answer['image'])}} ">
                     {%endif%}
                     </div>
@@ -195,7 +200,6 @@
                             <button><i class="demo-icon icon-thumbs-down-alt"> </i></button>     {{answer.dislike }}
                         </form>
 
-                        {%endif%}
                             {% if answer_id != None %}
                             <form action="{{ url_for('add_comment_to_answer', answer_id=answer.id) }}">
                                 <button>Add comment</button>
@@ -216,7 +220,9 @@
                         {%endif%}
 
                     </div>
+                    <div class="break_comment">
 
+                    </div>
                 </div>
                 {% if answer_id == answer['id'] %}
                                         <div class="comment_add">
@@ -235,7 +241,6 @@
                                         </div>
                                     {% endif %}
                                     <div class="coment_name"><h6>Comments:</h6></div>
-
                                     {% for comment in comments %}
                                     {% if comment.answer_id == answer.id %}
                                         <div class="answer_comment">
@@ -243,7 +248,7 @@
                                                 <div class="comment_user">{{comment.user}}:</div>
                                                 <div class="comment_times"><h6>Edited {{ comment.edited_count }} times</h6></div>
                                             </div>
-                                            <div class="coment_main">
+                                            <div class="profile_coment_main">
                                                 <div class="comment_text">
                                                     {{comment.message}}
                                                 </div>
@@ -258,9 +263,10 @@
                                                 {%endif%}
                                             </div>
                                         </div>
+                                        <div class="break_comment"></div>
                                     {%endif%}
-                                    <div class="break_comment"></div>
                                     {%endfor%}
+                                    <div class="break_comment"></div>
                  </div>
             {%endfor%}
             </section>

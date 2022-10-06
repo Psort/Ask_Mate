@@ -23,17 +23,22 @@
 
         <header>
             <div class="login_and_registration">
-                <form action="{{ url_for('logout') }}" >
-                    <button type="submit"> Log Out</button>
-                  </form>
+                <div class="logout">
+                    <form action="{{ url_for('logout') }}" >
+                       <button type="submit"> Log Out</button>
+                   </form>
+               </div>
             </div>
-            <h1 class="logo"><a href="{{ url_for('route_list') }}">ASK-Mate</a> </h1>
+            <div class="logo">
+                <h1 class="logo"><a href="{{ url_for('route_list') }}">ASK-Mate</a> </h1>
+            </div>
+            
 
             <nav id="topnav">
-                <div>
-                    <h3 class="creators">Twórcy:</h3>
-                </div>
                 <ul class="menu">
+                    <div>
+                        <h3 class="creators">Twórcy:</h3>
+                    </div>
                     <li>Piotr Skowron</li>
                     <li>Rafał Gontarski</li>
                     <li>Tymoteusz Sztrumpf</li>
@@ -45,7 +50,20 @@
             </nav>
 
         </header>
-        <main>
+        <main>  
+                <div class="break_comment"></div>
+                {%for notification in notifications%}
+                <a href="{{url_for('del_notification',id = notification.id)}}">
+                    <div class="notification">
+                    {%if notification.notification_text == 'new Like to Answer' or notification.notification_text == 'new Dislike to Answer' or notification.notification_text == 'new Comment to Answer' %}
+                        {{notification.notification_text}} :  {%for answer in answers%}{% if answer.id == notification.answer_id%}{{answer.message}}{%endif%} {%endfor%}
+                    {%else%}
+                        {{notification.notification_text}} :{%for question in questions%} {%if question.id == notification.question_id %} {{question.title}}{%endif%}{%endfor%}
+                    {%endif%}
+                    </div>
+                </a>
+                {%endfor%}
+        
             <div class="Profile">
                 <div class="name">{{user.username}}</div>
                 <div class="noaq" >Number of asked questions:{{user.num_asked_question}}</div>
@@ -112,7 +130,7 @@
                         </div>
                         <div class="coment_main">
                             <div class="comment_text">
-                                <div class="entrytxt">
+                                <div class="profile_entrytxt">
                                 {{answer.message}} 
                                 </div>
                             </div>
@@ -131,6 +149,7 @@
 
                     </div>
                     </a>
+                    <div class="break_comment"></div>
                 {%endfor%}
             </div>
             <div class="comments">
@@ -150,6 +169,7 @@
                     <div class="profile_comment">
                         <div class="heading">
                             <h6>Edited {{ comment.edited_count }} times</h6>
+
                         </div>
                         <div class="coment_main">
                             <div class="comment_text">
@@ -158,7 +178,7 @@
                         </div>
                     </div>
                     </a>
-
+                    <div class="break_comment"></div>
                 {%endfor%}
                 
             </div>

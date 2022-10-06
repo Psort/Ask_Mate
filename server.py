@@ -49,8 +49,9 @@ def profile():
     comments = data_manager.get_comments_by_user_id(session['id'])
     tags = data_manager.get_tags()
     profile_tag = data_manager.get_all_tags()
+    notifications = data_manager.get_notifications_by_user_id(session['id'])
     return render_template('profile.html', user=user, questions=questions, answers=answers, comments=comments,
-                           tags=tags, profile_tag=profile_tag)
+                           tags=tags, profile_tag=profile_tag,notifications = notifications)
 
 
 @app.route('/Sign_up', methods=['GET', 'POST'])
@@ -67,8 +68,7 @@ def Sign_up():
             if data_manager.check_is_username(username):
                 data_manager.create_account(username, password)
                 session['username'] = username
-                session['id'] = data_manager.get_user_id_by_username(username)[
-                    'id']
+                session['id'] = data_manager.get_user_id_by_username(username)['id']
                 return redirect(url_for('profile'))
             return render_template('Sign_up.html', error_message=error_message)
         return render_template('Sign_up.html')
@@ -142,6 +142,7 @@ def add_vote_question(question_id):
         return redirect(url_for('login'))
     user_id = data_manager.add_like_question(question_id)
     data_manager.add_reputation(user_id['user_id'], '+5')
+    data_manager.create_notifications(user_id['user_id'],'New Like to Question',question_id)
     return redirect(url_for("display_question", question_id=question_id))
 
 
@@ -151,6 +152,7 @@ def add_dislike_question(question_id):
         return redirect(url_for('login'))
     user_id = data_manager.dislike_question(question_id)
     data_manager.add_reputation(user_id['user_id'], '-2')
+    data_manager.create_notifications(user_id['user_id'],'new Dislike to Question',question_id)
     return redirect(url_for("display_question", question_id=question_id))
 
 
@@ -161,6 +163,7 @@ def add_vote_answer(answer_id):
     question_id = data_manager.add_like_answer(answer_id)
     data_manager.add_reputation(question_id['user_id'], '+10')
     data_manager.delete_view(question_id['question_id'])
+    data_manager.create_notifications(question_id['user_id'],'new Like to Answer',question_id['question_id'],answer_id)
     return redirect(url_for("display_question", question_id=question_id['question_id'], answer_id=answer_id))
 
 
@@ -171,6 +174,7 @@ def add_dislike_answer(answer_id):
     question_id = data_manager.dislike_answer(answer_id)
     data_manager.add_reputation(question_id['user_id'], '-2')
     data_manager.delete_view(question_id['question_id'])
+    data_manager.create_notifications(question_id['user_id'],'new Dislike to Answer',question_id['question_id'],answer_id)
     return redirect(url_for("display_question", question_id=question_id['question_id'], answer_id=answer_id))
 
 
@@ -220,7 +224,8 @@ def add_answer(question_id):
         message = request.form['message']
         question_id = data_manager.add_new_answer(question_id, message, filename, session['id'])
         data_manager.count_answers(session['id'])
-        return redirect(url_for('display_question', question_id=question_id['question_id']))
+        data_manager.create_notifications(question_id['user_id'],'new Answer to Question',question_id['id'])
+        return redirect(url_for('display_question', question_id=question_id['id']))
 
 
 @app.route('/question/<int:question_id>/new-comment', methods=['GET', 'POST'])
@@ -233,8 +238,9 @@ def add_comment_to_question(question_id):
                                question_id=question_id)
     elif request.method == 'POST':
         message = request.form['message']
-        data_manager.add_comment_to_question(question_id, message, user_id=session['id'])
+        user_id = data_manager.add_comment_to_question(question_id, message, user_id=session['id'])
         data_manager.count_comments(session['id'])
+        data_manager.create_notifications(user_id['user_id'],'new Comment to Question',question_id)
         return redirect(url_for('route_list'))
 
 
@@ -254,7 +260,9 @@ def add_comment_to_answer(answer_id):
         data_manager.add_comment_to_answer(answer_id, message, session['id'])
         question_id = data_manager.get_question_id_by_answer_id(answer_id)
         data_manager.delete_view(question_id['question_id'])
+        user_id = data_manager.get_user_id_by_question_id(question_id['question_id'])
         data_manager.count_comments(session['id'])
+        data_manager.create_notifications(user_id['user_id'],'new Comment to Answer',question_id['question_id'],answer_id)
         return redirect(url_for('display_question', question_id=question_id['question_id']))
 
 
@@ -281,6 +289,12 @@ def del_question(question_id):
     data_manager.del_question_count(user_id['id'])
     data_manager.del_question(question_id)
     return redirect(url_for('route_list'))
+
+@app.route('/notification<int:id>delete')
+def del_notification(id):
+    data_manager.delete_notification(id)
+    return redirect(url_for('profile'))
+
 
 
 @app.route('/question/<int:question_id>/<int:tag_id>/delete_tag', methods=['POST'])
@@ -407,3 +421,4 @@ def accepted_answer(question_id, answer_id):
 
 if __name__ == "__main__":
     app.run(debug=True)
+

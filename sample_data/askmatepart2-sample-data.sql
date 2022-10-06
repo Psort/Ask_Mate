@@ -28,7 +28,14 @@ CREATE TABLE question (
     image text,
     dislike integer
 );
-
+DROP TABLE IF EXISTS public.notifications;
+CREATE TABLE notifications (
+    id serial NOT NULL,
+    user_id integer,
+    notification_text text,
+    question_id integer,
+    answer_id integer
+);
 DROP TABLE IF EXISTS public.answer;
 CREATE TABLE answer (
     id serial NOT NULL,
@@ -80,6 +87,11 @@ CREATE TABLE users (
 ALTER TABLE ONLY users
     ADD CONSTRAINT pk_user_id PRIMARY KEY (id);
 
+ALTER TABLE ONLY notifications
+    ADD CONSTRAINT pk_notification_id PRIMARY KEY (id);
+
+ALTER TABLE notifications
+    ADD CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(id);
 ALTER TABLE question
     ADD CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(id);
 
