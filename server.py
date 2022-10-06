@@ -65,28 +65,6 @@ def Sign_up():
 
             username = request.form['username']
             password = request.form['password']
-            if data_manager.check_is_username(username):
-                data_manager.create_account(username, password)
-                session['username'] = username
-                session['id'] = data_manager.get_user_id_by_username(username)[
-                    'id']
-                return redirect(url_for('profile'))
-            return render_template('Sign_up.html', error_message=error_message)
-        return render_template('Sign_up.html')
-
-
-
-@app.route('/Sign_up', methods=['GET', 'POST'])
-def Sign_up():
-    error_message = "such an account already exists"
-    if session != {}:
-        return redirect(url_for('profile'))
-    else:
-        if request.method == 'POST':
-            session.pop('user_id', None)
-
-            username = request.form['username']
-            password = request.form['password']
             if  data_manager.check_is_username(username):
                 data_manager.create_account(username,password)
                 session['username'] = username
@@ -94,6 +72,7 @@ def Sign_up():
                 return redirect(url_for('profile'))
             return render_template('Sign_up.html',error_message = error_message)
         return render_template('Sign_up.html')
+
 
 @app.route('/logout')
 def logout():
@@ -107,8 +86,8 @@ def question_list():
     order_direction = request.args.get('order_direction', 'asc')
     questions = data_manager.get_question_data()
     comments = data_manager.get_comments()
-    tags = data_manager.get_tags()
-    profile_tag = data_manager.get_all_tags()
+    #tags = data_manager.get_tags()
+    #profile_tag = data_manager.get_all_tags()
     sorted_questions = sorted(questions, key=itemgetter(
         order_by), reverse=order_direction == 'desc')
 

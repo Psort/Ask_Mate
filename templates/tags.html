@@ -51,9 +51,7 @@
     <div class="entries">
         {% for t in tags %}
             <div class = 'tag_list'>
-                <form>
-                    <button><a href="{{ url_for('questions_by_tag_name', tag_id=t['id']) }}"> {{ t['name'] }}</a> </button> {{ t['count'] }}
-                </form>
+                    <a href="{{ url_for('questions_by_tag_name', tag_id=t['id']) }}"><button> {{ t['name'] }}</button></a>  {{ t['count'] }}
             </div>
         {% endfor %}
     </div>
