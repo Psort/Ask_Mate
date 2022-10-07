@@ -1,9 +1,6 @@
-import os
 import time
-from unicodedata import name
 import database_common
-from server import question_list
-import bcrypt
+import help_functions as hf
 
 
 QUESTION_HEADERS = ['id', 'submission_time', 'view_number',
@@ -236,18 +233,6 @@ def add_reputation(cursor, user_id, num_of_reputation):
                 WHERE id = {user_id}
             """
     cursor.execute(query)
-
-
-# @database_common.connection_handler
-# def add_reputation_for_voteup(cursor, question_id, user_id, points):
-#     query = f"""
-#                 UPDATE users
-#                 SET users.reputation = users.reputation + {points}
-#                 INNER JOIN question
-#                 ON question.user_id = users.id
-#                 WHERE users.id = {user_id}
-#             """
-#     cursor.execute(query)
 
 
 @database_common.connection_handler
@@ -526,9 +511,9 @@ def add_tag(cursor, tag):
 
 @database_common.connection_handler
 def add_tag_to_question(cursor, question_id, tag):
-    if is_tag_in_tags(tag):
+    if hf.is_tag_in_tags(tag):
         add_tag(tag)
-    if check_tag_in_question(question_id, tag):
+    if hf.check_tag_in_question(question_id, tag):
         query = f""" 
                     INSERT into question_tag (question_id,tag_id)
                     VALUES({question_id},(SELECT id from tag WHERE name = '{tag}')) 
@@ -650,28 +635,6 @@ def reset_accepted_answer(cursor, question_id, answer_id):
     cursor.execute(query)
     return cursor.fetchone()
 
-def is_tag_in_tags(tag):
-    tags = get_tags()
-    for element in tags:
-        if tag == element["name"]:
-            return False
-    return True
-
-
-def check_tag_in_question(question_id, tag):
-    question_tags = get_tags_by_question_id(question_id)
-    for question_tag in question_tags:
-        if tag == question_tag['name']:
-            return False
-    return True
-
-
-def try_login(username,password):
-    users = get_users()
-    for user in users:
-        if username == user['username']:
-                return verify_password(password,user['password'])
-    return False
 
 
 @database_common.connection_handler
@@ -737,16 +700,6 @@ def get_user_id_by_question_id(cursor, question_id):
     cursor.execute(query)
     return cursor.fetchone()
 
-@database_common.connection_handler
-def get_user_id_by_answer_id(cursor, answer_id):
-    query = f"""
-        SELECT us.id
-        FROM users as us
-        JOIN answer as an ON an.user_id = us.id
-        WHERE an.id = {answer_id}
-    """
-    cursor.execute(query)
-    return cursor.fetchone()
 
 @database_common.connection_handler
 def get_user_id_by_comment_id(cursor, comment_id):
@@ -788,19 +741,3 @@ def del_question_count(cursor, user_id):
     """
     cursor.execute(query)
 
-def check_is_username(username):
-    users = get_users()
-    for user in users:
-        if username == user['username']:
-            return False
-    return True
-
-
-def hash_password(plain_text_password):
-    hashed_bytes = bcrypt.hashpw(plain_text_password.encode('utf-8'), bcrypt.gensalt())
-    return hashed_bytes.decode('utf-8')
-
-
-def verify_password(plain_text_password, hashed_password):
-    hashed_bytes_password = hashed_password.encode('utf-8')
-    return bcrypt.checkpw(plain_text_password.encode('utf-8'), hashed_bytes_password)

@@ -22,6 +22,7 @@
 	<header>
         <div class="login_and_registration">
         {% if session == {}%}
+            <a href="{{ url_for('users_list') }}"><button>Users list</button></a>
             <a href="{{ url_for('Sign_up') }}"><button>Sign up</button></a>
             <a href="{{ url_for('login') }}"><button>login</button></a>
         

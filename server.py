@@ -2,7 +2,7 @@ from operator import itemgetter
 from flask import Flask, render_template, request, redirect, url_for, session
 import data_manager
 import connection
-import bcrypt
+import help_functions
 
 app = Flask(__name__)
 app.secret_key = 'somesecretkeythatonlyishouldknow'
@@ -10,13 +10,11 @@ app.secret_key = 'somesecretkeythatonlyishouldknow'
 
 @app.route('/')
 def route_list():
-    user_posts = data_manager.get_latest_question()
-    user_answers = data_manager.get_answer_data()
-    comments = data_manager.get_comments()
-    tags = data_manager.get_tags()
-    profile_tag = data_manager.get_all_tags()
+    user_posts, user_answers, comments, tags, profile_tag = help_functions.get_info_to_main_webside()
     return render_template('list.html', headers=data_manager.SORT_QUESTION_HEADERS, posts=user_posts,
                            answers=user_answers, list_button=1, comments=comments, session=session,tags=tags,profile_tag=profile_tag)
+
+
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -43,16 +41,10 @@ def login():
 def profile():
     if session == {}:
         return redirect(url_for('login'))
-    user = data_manager.get_user_by_user_id(session['id'])
-    questions = data_manager.get_questions_by_user_id(session['id'])
-    answers = data_manager.get_answers_by_user_id(session['id'])
-    comments = data_manager.get_comments_by_user_id(session['id'])
-    tags = data_manager.get_tags()
-    profile_tag = data_manager.get_all_tags()
-    print(session['id'])
-    notifications = data_manager.get_notifications_by_user_id(session['id'])
+    user, questions, answers, comments, tags, profile_tag, notifications = help_functions.get_current_user_info(session['id'])
     return render_template('profile.html', user=user, questions=questions, answers=answers, comments=comments,
                            tags=tags, profile_tag=profile_tag,notifications = notifications)
+
 
 
 @app.route('/Sign_up', methods=['GET', 'POST'])
@@ -93,7 +85,7 @@ def question_list():
         order_by), reverse=order_direction == 'desc')
 
     return render_template('list.html', posts=sorted_questions, headers=data_manager.SORT_QUESTION_HEADERS,
-                           comments=comments)
+                           comments=comments ,tags =tags,profile_tag=profile_tag)
 
 
 @app.route('/tags/<int:tag_id>')
@@ -107,19 +99,15 @@ def questions_by_tag_name(tag_id):
 @app.route('/question/<int:question_id>')
 def display_question(question_id):
     data_manager.add_view(question_id)
-    question = data_manager.get_question_by_id(question_id)
-    answers = data_manager.get_answers_by_question_id(question_id)
-    comments = data_manager.get_comments()
-    question_tags = data_manager.get_tags_by_question_id(question_id)
-
+    question, answers, comments, question_tags = help_functions.get_info_to_question(question_id)
     return render_template('question.html', question_id=question_id, answers=answers, question=question,
                            question_tags=question_tags, comments=comments)
 
 
+
+
 @app.route('/question/<int:question_id>/add_tag', methods=['POST'])
 def add_tag(question_id):
-    data_manager.delete_view(question_id)
-    data_manager.add_view(question_id)
     question = data_manager.get_question_by_id(question_id)
     answers = data_manager.get_answers_by_question_id(question_id)
     comments = data_manager.get_comment_by_question_id(question_id)
@@ -263,9 +251,9 @@ def add_comment_to_answer(answer_id):
         data_manager.add_comment_to_answer(answer_id, message, session['id'])
         question_id = data_manager.get_question_id_by_answer_id(answer_id)
         data_manager.delete_view(question_id['question_id'])
-        user_id = data_manager.get_user_id_by_answer_id(answer_id['question_id'])
+        user_id = data_manager.get_user_id_by_answer_id(answer_id)
         data_manager.count_comments(session['id'])
-        data_manager.create_notifications(user_id['id'],'new Comment to Answer',question_id['question_id'],answer_id)
+        data_manager.create_notifications(user_id['user_id'],'new Comment to Answer',question_id['question_id'],answer_id)
         return redirect(url_for('display_question', question_id=question_id['question_id']))
 
 
@@ -314,7 +302,7 @@ def del_answer(answer_id):
     if session == {}:
         return redirect(url_for('login'))
     user_id = data_manager.get_user_id_by_answer_id(answer_id)
-    data_manager.del_answer_count(user_id['id'])
+    data_manager.del_answer_count(user_id['user_id'])
     question_id = data_manager.del_answer(answer_id)
     data_manager.delete_view(question_id['question_id'])
     return redirect(url_for('display_question', question_id=question_id['question_id']))
@@ -388,12 +376,7 @@ def users_list():
 
 @app.route('/users/<int:user_id>')
 def user_info(user_id):
-    user = data_manager.get_user_by_user_id(user_id)
-    questions = data_manager.get_questions_by_user_id(user_id)
-    answers = data_manager.get_answers_by_user_id(user_id)
-    comments = data_manager.get_comments_by_user_id(user_id)
-    tags = data_manager.get_tags()
-    profile_tag = data_manager.get_all_tags()
+    user, questions, answers, comments, tags, profile_tag = help_functions.get_info_user(user_id)
     return render_template('profile.html', user=user, questions=questions, answers=answers, comments=comments,
                            tags=tags, profile_tag=profile_tag)
 
@@ -402,7 +385,6 @@ def user_info(user_id):
 @app.route('/tags')
 def tag_list():
     tags = data_manager.get_tags_quantity_by_question()
-
     return render_template('tags.html', tags=tags)
 
 
@@ -410,7 +392,6 @@ def tag_list():
 def accepted_answer(question_id, answer_id):
     if session == {}:
         return redirect(url_for('login'))
-
     question = data_manager.get_question_by_id(question_id)
     if question[0]['accepted_answer'] == answer_id:
         user_id = data_manager.reset_accepted_answer(question_id, answer_id)
