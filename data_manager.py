@@ -24,6 +24,7 @@ def get_question_data(cursor):
     cursor.execute(query)
     return cursor.fetchall()
 
+
 @database_common.connection_handler
 def get_questions_by_user_id(cursor,user_id):
     query = f"""
