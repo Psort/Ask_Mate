@@ -6,6 +6,7 @@ import bcrypt
 
 app = Flask(__name__)
 app.secret_key = 'somesecretkeythatonlyishouldknow'
+app.config['PSQL_URI'] = 'postgres://dklztrcqdyeecv:4850ac72916f96bfde80c306ea250f21da00b54ce72f1dcca57409f9cee2201e@ec2-54-174-31-7.compute-1.amazonaws.com:5432/d3q1sug9kdfd5m'
 
 
 @app.route('/')

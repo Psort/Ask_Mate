@@ -2,7 +2,7 @@ import os
 import time
 from unicodedata import name
 import database_common
-from server import question_list
+from app import question_list
 import bcrypt
 
 
