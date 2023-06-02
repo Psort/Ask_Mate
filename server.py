@@ -25,15 +25,12 @@ def login():
     else:
         if request.method == 'POST':
             session.pop('user_id', None)
-
             username = request.form['username']
-            password = request.form['password']
-            if data_manager.try_login(username,password):
-                session['username'] = username
-                session['id'] = data_manager.get_user_id_by_username(username)[
-                    'id']
-                return redirect(url_for('route_list'))
-            return render_template('login.html', error_message=error_message)
+            session['username'] = username
+            session['id'] = data_manager.get_user_id_by_username(username)[
+                'id']
+            return redirect(url_for('route_list'))
+
         return render_template('login.html')
 
 
